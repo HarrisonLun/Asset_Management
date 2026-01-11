@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management </title>
+    <title>Asset Management Elite (Bank Fix)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -313,12 +313,20 @@
     let currentGrandTotal = 0;
     let chartInstance = null, pieChartInstance = null;
 
-    const twBanks = ["822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "807 Sinopac 永豐", "803 Union 聯邦", "007 First 第一銀行", "008 Hua Nan 華南銀行"];
+    // Expanded Bank List
+    const twBanks = [
+        "822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", 
+        "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "823 Next Bank 將來銀行",
+        "807 Sinopac 永豐銀行", "803 Union 聯邦銀行", "007 First 第一銀行", "008 Hua Nan 華南銀行",
+        "004 BOT 臺灣銀行", "005 Land Bank 土地銀行", "006 Coop Bank 合作金庫", "009 Chang Hwa 彰化銀行",
+        "011 Shanghai 上海商銀", "016 Kaohsiung 高雄銀行", "017 Mega 兆豐銀行", "021 Citi 花旗銀行",
+        "050 Standard Chartered 渣打", "052 HSBC 匯豐銀行", "805 Far Eastern 遠東商銀", "806 Yuananta 元大銀行"
+    ];
 
     window.onload = function() {
-        if(localStorage.getItem("cleanAssetDataV17")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV17"));
-        if(localStorage.getItem("cleanAssetHistoryV17")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV17"));
-        if(localStorage.getItem("cleanAssetLedgerV17")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV17"));
+        if(localStorage.getItem("cleanAssetDataV18")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV18"));
+        if(localStorage.getItem("cleanAssetHistoryV18")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV18"));
+        if(localStorage.getItem("cleanAssetLedgerV18")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV18"));
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
@@ -399,7 +407,7 @@
         myLedger.unshift({
             date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
         });
-        localStorage.setItem("cleanAssetLedgerV17", JSON.stringify(myLedger));
+        localStorage.setItem("cleanAssetLedgerV18", JSON.stringify(myLedger));
         renderLedger();
     }
 
@@ -496,15 +504,15 @@
         }
     }
 
-    function saveData() { localStorage.setItem("cleanAssetDataV17", JSON.stringify(myData)); renderAll(); }
-    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV17"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
+    function saveData() { localStorage.setItem("cleanAssetDataV18", JSON.stringify(myData)); renderAll(); }
+    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV18"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
     
     function recordHistory() {
         const now = new Date();
         const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
         myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: JSON.parse(JSON.stringify(myData)) });
         myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-        localStorage.setItem("cleanAssetHistoryV17", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
+        localStorage.setItem("cleanAssetHistoryV18", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
     }
     function renderSnapshotList() {
         const div = document.getElementById("snapshotList");
@@ -599,7 +607,7 @@
     }
 
     function downloadData() { const d={a:myData,h:myHistory,l:myLedger}; const b=new Blob([JSON.stringify(d)],{type:'json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='backup.json'; a.click(); }
-    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV16", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV16", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
+    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV18", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV18", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
