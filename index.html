@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management Pro (Auto Price)</title>
+    <title>Asset Management </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -14,21 +14,28 @@
             --navy-dark: #0f172a;
             --navy-primary: #1e3a8a;
             --navy-light: #3b82f6;
-            --bg-body: #f8fafc;
+            --bg-body: #f1f5f9;
             --text-main: #334155;
             --text-muted: #64748b;
-            --card-radius: 16px;
+            --card-radius: 12px;
+            
+            /* Professional Accounting Colors */
+            --acc-header-bg: #1e293b; 
+            --acc-header-text: #f8fafc;
+            --acc-border: #e2e8f0;
+            --col-debit: #059669; /* Green */
+            --col-credit: #dc2626; /* Red */
         }
 
         body { 
             background-color: var(--bg-body); 
             color: var(--text-main); 
             font-family: 'Inter', sans-serif; 
-            padding-bottom: 60px;
+            padding-bottom: 80px;
         }
 
         /* Navbar */
-        .navbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 0; margin-bottom: 2rem; }
+        .navbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 0; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .brand { font-weight: 800; font-size: 1.25rem; color: var(--navy-dark); letter-spacing: -0.5px; text-transform: uppercase; }
 
         /* Dashboard Header */
@@ -42,11 +49,10 @@
             position: relative;
             overflow: hidden;
         }
-        
         .metric-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: #bfdbfe; margin-bottom: 5px; font-weight: 600; }
         .metric-value { font-size: 3.5rem; font-weight: 800; line-height: 1; letter-spacing: -1px; font-family: 'Inter', sans-serif; }
 
-        /* KPI White Boxes (Fixed Layout) */
+        /* KPI Boxes */
         .kpi-box { 
             background: white; padding: 15px 10px; border-radius: 12px; 
             text-align: center; height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
@@ -56,68 +62,68 @@
         .kpi-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .kpi-val { font-size: 1.1rem; font-weight: 800; color: var(--navy-dark); font-family: 'JetBrains Mono', monospace; }
 
-        /* Cards & Lists */
+        /* Cards */
         .card { border: none; border-radius: var(--card-radius); background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 24px; overflow: hidden; }
-        
-        .card-header-flex {
-            background: white; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;
-            display: flex; align-items: center;
-        }
-        
-        .title-icon {
-            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin-right: 12px; font-size: 0.9rem;
-        }
+        .card-header-flex { background: white; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; }
+        .title-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 0.9rem; }
         .icon-equity { background: #eff6ff; color: #1e3a8a; } 
         .icon-bank { background: #f0fdf4; color: #166534; }   
         .icon-ins { background: #fefce8; color: #854d0e; }    
         .icon-cash { background: #f8fafc; color: #475569; }   
-
         .card-title-text { font-weight: 700; color: var(--navy-dark); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .card-body { padding: 24px; }
 
-        /* Input Styles */
+        /* Forms */
         .form-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
-        .form-control, .form-select {
-            display: block; width: 100%; padding: 12px; margin-bottom: 16px;
-            border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: var(--navy-dark); background-color: #fff;
-        }
+        .form-control, .form-select { display: block; width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: var(--navy-dark); background-color: #fff; }
         .form-control:focus, .form-select:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        /* Type Grid Buttons */
+        /* Buttons */
         .btn-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-        .btn-type {
-            background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px;
-            color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-type i { font-size: 1.2rem; margin-bottom: 5px; display: block; }
+        .btn-type { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; }
         .btn-type:hover { background: #f8fafc; color: var(--navy-primary); border-color: var(--navy-primary); }
         .btn-type.active { background: var(--navy-dark); color: white; border-color: var(--navy-dark); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-
-        /* Action Buttons */
         .btn-navy { background: var(--navy-dark); color: white; border: none; font-weight: 600; padding: 14px; width: 100%; border-radius: 8px; transition: all 0.2s; }
         .btn-navy:hover { background: #1e293b; transform: translateY(-1px); }
 
-        /* Tables */
+        /* Tables (Dashboard) */
         .table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: #f8fafc; border:none; padding: 12px 20px; }
         .table td { vertical-align: middle; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
         
-        /* Bankbook History */
-        .passbook-container { border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'JetBrains Mono', monospace; background: white; }
-        .passbook-header { background: #f8fafc; padding: 12px 20px; border-bottom: 2px solid #e2e8f0; font-weight: 700; color: var(--navy-dark); font-size: 0.9rem; }
-        .passbook-row { display: grid; grid-template-columns: 2fr 3fr 2fr; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; align-items: center; }
-        .passbook-row:last-child { border-bottom: none; }
-        .pb-time { color: #94a3b8; font-size: 0.75rem; }
+        /* === ACCOUNTING LEDGER STYLE === */
+        .acc-table-container { border: 1px solid var(--acc-border); border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .acc-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+        .acc-table thead th { background-color: var(--acc-header-bg); color: var(--acc-header-text); text-transform: uppercase; letter-spacing: 1px; padding: 15px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+        .acc-table tbody tr { border-bottom: 1px solid var(--acc-border); transition: background 0.1s; }
+        .acc-table tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .acc-table tbody tr:hover { background-color: #e2e8f0; }
+        .acc-table td { padding: 12px 15px; vertical-align: middle; border-right: 1px solid #f1f5f9; color: var(--navy-dark); }
+        
+        .col-date { font-family: 'Inter', sans-serif; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+        .col-desc { font-family: 'Inter', sans-serif; font-weight: 600; color: var(--navy-dark); }
+        .col-desc span { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.75rem; margin-top: 2px;}
+        .num-val { font-weight: 700; text-align: right; }
+        .val-debit { color: var(--col-debit); }
+        .val-credit { color: var(--col-credit); }
+        .val-balance { color: var(--navy-dark); }
+        .val-note { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; text-align: right; }
 
-        /* Page Transitions */
+        /* Page Logic */
         .page-section { display: none; animation: fadeIn 0.3s ease-in-out; }
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Loading Spin */
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .fa-spin-custom { animation: spin 1s linear infinite; }
+        /* Modal Details */
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #e2e8f0; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { color: var(--text-muted); font-size: 0.9rem; }
+        .detail-val { font-weight: 700; color: var(--navy-dark); font-family: 'JetBrains Mono', monospace; }
+        
+        .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .detail-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+
+        /* Rates Table */
+        .rate-row td { padding: 8px 15px; font-size: 0.85rem; }
 
     </style>
 </head>
@@ -128,19 +134,18 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-layer-group fa-lg me-2" style="color: var(--navy-primary);"></i>
             <span class="brand">ASSET MANAGEMENT</span>
+            <span id="rateBadge" class="ms-3 badge bg-success bg-opacity-10 text-success border border-success px-2" style="display:none;"><i class="fas fa-circle me-1" style="font-size:6px; vertical-align:middle;"></i> Live Rates</span>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-dark fw-bold" onclick="downloadData()">
-                <i class="fas fa-download me-1"></i> Backup
-            </button>
-            <label class="btn btn-sm btn-outline-dark fw-bold mb-0" style="cursor:pointer">
-                <i class="fas fa-upload me-1"></i> Restore
-                <input type="file" id="uploadInput" style="display: none;" onchange="uploadData(this)">
-            </label>
+            <button class="btn btn-sm btn-outline-dark fw-bold" onclick="switchPage('dashboard')"><i class="fas fa-home me-1"></i> Home</button>
+            <button class="btn btn-sm btn-outline-dark fw-bold" onclick="switchPage('ledger')"><i class="fas fa-book me-1"></i> Ledger</button>
+            <button class="btn btn-sm btn-outline-dark fw-bold" onclick="switchPage('analytics')"><i class="fas fa-chart-line me-1"></i> History</button>
             <div class="vr mx-1"></div>
-            <button class="btn btn-sm btn-primary fw-bold" onclick="recordHistory()">
-                <i class="fas fa-save me-1"></i> Record
-            </button>
+            <button class="btn btn-sm btn-secondary fw-bold" onclick="downloadData()"><i class="fas fa-download"></i></button>
+            <label class="btn btn-sm btn-secondary fw-bold mb-0" style="cursor:pointer">
+                <i class="fas fa-upload"></i>
+                <input type="file" style="display: none;" onchange="uploadData(this)">
+            </label>
         </div>
     </div>
 </nav>
@@ -148,17 +153,17 @@
 <div class="container py-4">
 
     <div id="view-dashboard" class="page-section active">
-        
         <div class="dashboard-header">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <div class="metric-label">Total Net Worth (TWD)</div>
                     <div class="metric-value" id="grandTotal">$0</div>
-                    <div class="mt-2 text-white-50 small"><i class="fas fa-signal me-1"></i> Live Rates Active</div>
+                    <div class="mt-2 text-white-50 small"><i class="fas fa-check-circle me-1"></i> Auto-Sync Active</div>
                 </div>
-                <button class="btn btn-light text-primary fw-bold shadow-sm" onclick="switchPage('analytics')">
-                    <i class="fas fa-chart-line me-2"></i>View Analytics & History
-                </button>
+                <div>
+                    <button class="btn btn-sm btn-light text-primary fw-bold me-2" onclick="fetchLiveRates()">Force Sync</button>
+                    <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="recordHistory()">Snapshot</button>
+                </div>
             </div>
             
             <div class="row row-cols-2 row-cols-md-5 g-3 mt-4">
@@ -172,12 +177,9 @@
 
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header-flex">
-                        <i class="fas fa-plus-circle me-2 text-primary"></i> <span class="card-title-text">Add New Asset</span>
-                    </div>
+                <div class="card">
+                    <div class="card-header-flex"><i class="fas fa-plus-circle me-2 text-primary"></i> <span class="card-title-text">Add Asset</span></div>
                     <div class="card-body">
-                        
                         <div class="btn-type-grid">
                             <div class="btn-type active" onclick="setForm('bank', this)"><i class="fas fa-university"></i>Bank</div>
                             <div class="btn-type" onclick="setForm('stock', this)"><i class="fas fa-chart-line"></i>Stock</div>
@@ -185,232 +187,101 @@
                             <div class="btn-type" onclick="setForm('cash', this)"><i class="fas fa-wallet"></i>Cash</div>
                             <div class="btn-type" onclick="setForm('forex', this)"><i class="fas fa-globe"></i>Forex</div>
                         </div>
+                        <div id="form-bank" class="asset-form"><label class="form-label">Institution</label><select class="form-select" id="bankSelect"></select><label class="form-label">Memo</label><input type="text" class="form-control" id="bankNote"><label class="form-label">Amount</label><input type="number" class="form-control" id="bankAmount"><button class="btn-navy" onclick="addItem('banks')">Add / Update</button></div>
+                        <div id="form-stock" class="asset-form d-none"><label class="form-label">Market</label><select class="form-select" id="stockMarket"><option value="TWD">TWSE</option><option value="USD">US</option><option value="HKD">HK</option></select><label class="form-label">Ticker</label><div class="input-group mb-3"><input type="text" class="form-control mb-0" id="stockCode"><button class="btn btn-outline-primary" type="button" id="btnFetchPrice" onclick="fetchSingleStockPrice()"><i class="fas fa-search"></i></button></div><label class="form-label">Name</label><input type="text" class="form-control" id="stockName"><label class="form-label">Shares</label><input type="number" class="form-control" id="stockShares"><label class="form-label">Price</label><input type="number" class="form-control" id="stockPrice"><button class="btn-navy" onclick="addItem('stocks')">Add / Update</button></div>
+                        <div id="form-ins" class="asset-form d-none"><label class="form-label">Policy</label><input type="text" class="form-control" id="insName"><label class="form-label">Currency</label><select class="form-select" id="insCurrency"><option value="TWD">TWD</option><option value="USD">USD</option></select><label class="form-label">Value</label><input type="number" class="form-control" id="insAmount"><button class="btn-navy" onclick="addItem('insurances')">Add / Update</button></div>
+                        <div id="form-cash" class="asset-form d-none"><label class="form-label">Name</label><input type="text" class="form-control" id="cashName"><label class="form-label">Currency</label><select class="form-select" id="cashCurrency"><option value="TWD">TWD</option><option value="USD">USD</option><option value="JPY">JPY</option></select><label class="form-label">Amount</label><input type="number" class="form-control" id="cashAmount"><button class="btn-navy" onclick="addItem('cash')">Add / Update</button></div>
+                        <div id="form-forex" class="asset-form d-none"><label class="form-label">Currency</label><select class="form-select" id="forexSelect"><option value="USD">USD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="EUR">EUR</option></select><label class="form-label">Amount</label><input type="number" class="form-control" id="forexAmount"><button class="btn-navy" onclick="addItem('forex')">Add / Update</button></div>
+                    </div>
+                </div>
 
-                        <div id="form-bank" class="asset-form">
-                            <label class="form-label">Institution 銀行機構</label>
-                            <select class="form-select" id="bankSelect"></select>
-                            <label class="form-label">Memo 備註</label>
-                            <input type="text" class="form-control" id="bankNote" placeholder="e.g. Salary Account">
-                            <label class="form-label">Balance 金額 (TWD)</label>
-                            <input type="number" class="form-control" id="bankAmount" placeholder="0">
-                            <button class="btn-navy" onclick="addItem('banks')">Add Deposit</button>
-                        </div>
-
-                        <div id="form-stock" class="asset-form d-none">
-                            <label class="form-label">Market 市場</label>
-                            <select class="form-select" id="stockMarket">
-                                <option value="TWD">TWSE (Taiwan)</option>
-                                <option value="USD">NASDAQ/NYSE (US)</option>
-                                <option value="HKD">HKEX (Hong Kong)</option>
-                            </select>
-                            
-                            <label class="form-label">Ticker Symbol 代號 (台股請輸入數字)</label>
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control mb-0" id="stockCode" placeholder="e.g. 2330">
-                                <button class="btn btn-outline-primary" type="button" id="btnFetchPrice" onclick="fetchSingleStockPrice()">
-                                    <i class="fas fa-search"></i> 抓取現價
-                                </button>
-                            </div>
-
-                            <label class="form-label">Asset Name 名稱</label>
-                            <input type="text" class="form-control" id="stockName" placeholder="e.g. TSMC">
-                            
-                            <label class="form-label">Quantity (Shares) 股數</label>
-                            <input type="number" class="form-control" id="stockShares" placeholder="0">
-                            
-                            <label class="form-label">Current Price 現價 (Auto Fill)</label>
-                            <input type="number" class="form-control" id="stockPrice" placeholder="0.00">
-                            
-                            <button class="btn-navy" onclick="addItem('stocks')">Add Position</button>
-                        </div>
-
-                        <div id="form-ins" class="asset-form d-none">
-                            <label class="form-label">Policy Name 保單名稱</label>
-                            <input type="text" class="form-control" id="insName">
-                            <label class="form-label">Currency 幣別</label>
-                            <select class="form-select" id="insCurrency"><option value="TWD">TWD</option><option value="USD">USD</option></select>
-                            <label class="form-label">Cash Value 現值</label>
-                            <input type="number" class="form-control" id="insAmount">
-                            <button class="btn-navy" onclick="addItem('insurances')">Add Policy</button>
-                        </div>
-
-                        <div id="form-cash" class="asset-form d-none">
-                            <label class="form-label">Name 名稱</label>
-                            <input type="text" class="form-control" id="cashName" placeholder="Wallet">
-                            <label class="form-label">Currency 幣別</label>
-                            <select class="form-select" id="cashCurrency"><option value="TWD">TWD</option><option value="USD">USD</option><option value="JPY">JPY</option></select>
-                            <label class="form-label">Amount 金額</label>
-                            <input type="number" class="form-control" id="cashAmount">
-                            <button class="btn-navy" onclick="addItem('cash')">Add Cash</button>
-                        </div>
-
-                        <div id="form-forex" class="asset-form d-none">
-                            <label class="form-label">Currency 幣別</label>
-                            <select class="form-select" id="forexSelect">
-                                <option value="USD">USD 美金</option>
-                                <option value="CNY">CNY 人民幣</option>
-                                <option value="JPY">JPY 日幣</option>
-                                <option value="KRW">KRW 韓元</option>
-                                <option value="EUR">EUR 歐元</option>
-                                <option value="HKD">HKD 港幣</option>
-                                <option value="AUD">AUD 澳幣</option>
-                                <option value="CZK">CZK 捷克克朗</option>
-                            </select>
-                            <label class="form-label">Amount 金額</label>
-                            <input type="number" class="form-control" id="forexAmount">
-                            <button class="btn-navy" onclick="addItem('forex')">Add Forex</button>
-                        </div>
-
-                        <div class="text-center mt-3 pt-3 border-top">
-                            <a href="#" class="text-danger small text-decoration-none fw-bold" onclick="clearData()">
-                                <i class="fas fa-trash me-1"></i> Clear All Data
-                            </a>
-                        </div>
+                <div class="card mt-4">
+                    <div class="card-header-flex"><i class="fas fa-exchange-alt me-2 text-primary"></i> <span class="card-title-text">Live Exchange Rates (TWD)</span></div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0" style="font-family: 'JetBrains Mono', monospace;">
+                            <tbody id="rateTableBody">
+                                </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-8">
-                
-                <div class="card">
-                    <div class="card-header-flex">
-                        <div class="title-icon icon-equity"><i class="fas fa-chart-pie"></i></div>
-                        <span class="card-title-text">Equity Portfolio (Stock)</span>
-                        <div class="ms-auto">
-                            <button class="btn btn-sm btn-outline-primary fw-bold" id="btnUpdateStock" onclick="updateStockPrices()">
-                                <i class="fas fa-cloud-download-alt me-1"></i> Update All Prices
-                            </button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light"><tr><th>Asset</th><th>Shares</th><th>Price</th><th class="text-end">Value (TWD)</th><th></th></tr></thead>
-                            <tbody id="listStock"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header-flex">
-                        <div class="title-icon icon-bank"><i class="fas fa-university"></i></div>
-                        <span class="card-title-text">Bank Liquidity</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead><tr><th>Institution</th><th>Note</th><th class="text-end">Balance</th><th></th></tr></thead>
-                            <tbody id="listBank"></tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <div class="card"><div class="card-header-flex"><div class="title-icon icon-equity"><i class="fas fa-chart-pie"></i></div><span class="card-title-text">Equity</span><div class="ms-auto"><button class="btn btn-sm btn-outline-primary fw-bold" id="btnUpdateStock" onclick="updateStockPrices()">Update Prices</button></div></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listStock"></tbody></table></div></div>
+                <div class="card"><div class="card-header-flex"><div class="title-icon icon-bank"><i class="fas fa-university"></i></div><span class="card-title-text">Bank</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listBank"></tbody></table></div></div>
                 <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header-flex">
-                                <div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div>
-                                <span class="card-title-text">Insurance</span>
-                            </div>
-                            <div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header-flex">
-                                <div class="title-icon icon-cash"><i class="fas fa-coins"></i></div>
-                                <span class="card-title-text">Cash & Forex</span>
-                            </div>
-                            <div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCashForex"></tbody></table></div>
-                        </div>
-                    </div>
+                    <div class="col-md-6"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div><span class="card-title-text">Insurance</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div></div></div>
+                    <div class="col-md-6"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-cash"><i class="fas fa-coins"></i></div><span class="card-title-text">Cash/Forex</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCashForex"></tbody></table></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-ledger" class="page-section">
+        <div class="d-flex align-items-center mb-4"><button class="btn btn-outline-secondary fw-bold me-3" onclick="switchPage('dashboard')"><i class="fas fa-arrow-left me-2"></i> Dashboard</button><h4 class="mb-0 fw-bold text-dark">General Ledger</h4></div>
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="card h-100"><div class="card-header-flex"><i class="fas fa-pen-nib me-2 text-primary"></i> Journal Entry</div><div class="card-body">
+                    <label class="form-label">Type</label><div class="btn-group w-100 mb-3" role="group"><input type="radio" class="btn-check" name="txType" id="txTypeIn" value="in" checked><label class="btn btn-outline-success" for="txTypeIn">Debit (+)</label><input type="radio" class="btn-check" name="txType" id="txTypeOut" value="out"><label class="btn btn-outline-danger" for="txTypeOut">Credit (-)</label></div>
+                    <label class="form-label">Category</label><select class="form-select" id="txCategory" onchange="updateTxAssetList()"><option value="banks">Bank</option><option value="cash">Cash</option><option value="forex">Forex</option></select>
+                    <label class="form-label">Account</label><select class="form-select" id="txAssetIndex"></select>
+                    <label class="form-label">Amount</label><input type="number" class="form-control" id="txAmount" placeholder="0.00">
+                    <label class="form-label">Description</label><input type="text" class="form-control" id="txMemo">
+                    <button class="btn-navy mt-2" onclick="addTransaction()">Record</button>
+                </div></div>
+            </div>
+            <div class="col-lg-9">
+                <div class="acc-table-container">
+                    <table class="acc-table">
+                        <thead><tr><th>Date</th><th>Description / Asset</th><th class="text-end">Debit (In)</th><th class="text-end">Credit (Out)</th><th class="text-end">Total Net Worth</th><th class="text-end">Asset Bal.</th></tr></thead>
+                        <tbody id="ledgerList"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="view-analytics" class="page-section">
-        
-        <div class="d-flex align-items-center mb-4">
-            <button class="btn btn-white border shadow-sm fw-bold me-3" onclick="switchPage('dashboard')">
-                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
-            </button>
-            <h4 class="mb-0 fw-bold text-dark">Analytics & History Log</h4>
-        </div>
-
+        <div class="d-flex align-items-center mb-4"><button class="btn btn-outline-secondary fw-bold me-3" onclick="switchPage('dashboard')"><i class="fas fa-arrow-left me-2"></i> Dashboard</button><h4 class="mb-0 fw-bold text-dark">History & Analytics</h4></div>
         <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card h-100">
-                    <div class="card-header-flex">
-                        <i class="fas fa-chart-area me-2"></i> Trend Analysis
-                    </div>
-                    <div class="card-body">
-                        <div style="height: 300px;"><canvas id="assetChart"></canvas></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header-flex">
-                        <i class="fas fa-info-circle me-2"></i> Summary
-                    </div>
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
-                        <div class="text-muted text-uppercase small fw-bold mb-1">Records Logged</div>
-                        <div class="display-4 fw-bold text-primary mb-4" id="recordCount">0</div>
-                        <div class="text-muted text-uppercase small fw-bold mb-1">Last Snapshot</div>
-                        <div class="fs-4 fw-bold text-dark" id="lastRecordVal">-</div>
-                        <div class="mt-auto pt-4">
-                            <button class="btn btn-outline-danger w-100 btn-sm" onclick="clearHistory()">Clear History</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header-flex"><i class="fas fa-book me-2"></i> Transaction History (Bankbook View)</div>
-                    <div class="card-body p-0">
-                        <div class="passbook-container border-0">
-                            <div class="passbook-header d-flex justify-content-between">
-                                <span>DATE</span> <span>MEMO</span> <span>BALANCE</span>
-                            </div>
-                            <div id="historyList"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="col-lg-8"><div class="card h-100"><div class="card-header-flex"><i class="fas fa-chart-area me-2"></i> Trend</div><div class="card-body"><div style="height: 300px;"><canvas id="assetChart"></canvas></div></div></div></div>
+            <div class="col-lg-4"><div class="card h-100"><div class="card-header-flex"><i class="fas fa-history me-2"></i> Snapshots</div><div class="card-body p-0"><table class="table table-hover mb-0"><tbody id="snapshotList"></tbody></table></div></div></div>
         </div>
     </div>
 
 </div>
 
+<div class="modal fade" id="snapshotModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title fw-bold" id="modalTitle"></h5><div id="modalTotal" class="text-primary fw-800 fs-3"></div></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body bg-light"><div class="row"><div class="col-md-5 d-flex align-items-center justify-content-center"><div style="width:250px;height:250px;"><canvas id="snapshotPieChart"></canvas></div></div><div class="col-md-7"><div id="modalDetailsContent" style="max-height:400px;overflow-y:auto;"></div></div></div></div></div></div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // CLEAN START
     let myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] };
-    let myHistory = [];
+    let myHistory = [], myLedger = []; 
     let rates = { "TWD": 1, "USD": 32.5, "JPY": 0.21, "CNY": 4.5, "EUR": 34.5, "HKD": 4.1, "AUD": 21.0, "CZK": 1.4 };
     let currentGrandTotal = 0;
-    let chartInstance = null;
+    let chartInstance = null, pieChartInstance = null;
 
-    const twBanks = [
-        "822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", 
-        "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank 連線銀行", "823 Next Bank 將來銀行",
-        "807 Sinopac 永豐銀行", "803 Union 聯邦銀行", "007 First 第一銀行", "008 Hua Nan 華南銀行"
-    ];
+    const twBanks = ["822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "807 Sinopac 永豐", "803 Union 聯邦", "007 First 第一銀行", "008 Hua Nan 華南銀行"];
 
     window.onload = function() {
-        if(localStorage.getItem("navyAssetAuto")) myData = JSON.parse(localStorage.getItem("navyAssetAuto"));
-        if(localStorage.getItem("navyHistoryAuto")) myHistory = JSON.parse(localStorage.getItem("navyHistoryAuto"));
-
+        if(localStorage.getItem("cleanAssetDataV10")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV10"));
+        if(localStorage.getItem("cleanAssetHistoryV10")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV10"));
+        if(localStorage.getItem("cleanAssetLedgerV10")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV10"));
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
         fetchLiveRates();
+        updateTxAssetList();
         renderAll();
+        renderLedger();
     };
 
     function switchPage(page) {
         document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view-' + page).classList.add('active');
-        if(page === 'analytics') { renderHistoryTable(); renderChart(); }
+        if(page === 'analytics') { renderSnapshotList(); renderChart(); }
+        if(page === 'ledger') { updateTxAssetList(); renderLedger(); }
         window.scrollTo(0,0);
     }
 
@@ -421,273 +292,236 @@
         btn.classList.add('active');
     }
 
-    // --- AUTO FETCH PRICE (SINGLE) ---
-    async function fetchSingleStockPrice() {
-        const market = document.getElementById('stockMarket').value;
-        let symbol = document.getElementById('stockCode').value.trim();
-        const btn = document.getElementById('btnFetchPrice');
-        const priceInput = document.getElementById('stockPrice');
-
-        if(!symbol) return alert("Please enter a stock code.");
-
-        // Format Symbol
-        if(market === 'TWD') {
-            if(!isNaN(symbol) && !symbol.includes('.TW')) symbol += '.TW';
-        } else if (market === 'HKD') {
-            if(!symbol.includes('.HK')) symbol = symbol.padStart(4, '0') + '.HK';
-        }
-
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin-custom"></i>';
-        btn.disabled = true;
-
-        try {
-            const proxyUrl = 'https://corsproxy.io/?'; 
-            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
-            const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-            const json = await res.json();
-
-            if(json.chart && json.chart.result && json.chart.result[0]) {
-                const price = json.chart.result[0].meta.regularMarketPrice;
-                if(price) {
-                    priceInput.value = price;
-                } else {
-                    alert("Price not found.");
-                }
-            } else {
-                alert("Symbol not found or API error.");
-            }
-        } catch(e) {
-            console.error(e);
-            alert("Fetch failed. Try manually.");
-        }
-
-        btn.innerHTML = '<i class="fas fa-search"></i> 抓取現價';
-        btn.disabled = false;
+    function updateTxAssetList() {
+        const cat = document.getElementById('txCategory').value;
+        const sel = document.getElementById('txAssetIndex');
+        sel.innerHTML = '';
+        let list = myData[cat];
+        if(!list || list.length === 0) { let opt = document.createElement('option'); opt.text = "No accounts available"; opt.value = ""; sel.add(opt); return; }
+        list.forEach((item, index) => {
+            let opt = document.createElement('option'); opt.value = index;
+            if(cat === 'banks') opt.text = item.bank + ` (Bal: $${item.amt.toLocaleString()})`;
+            else if(cat === 'cash') opt.text = item.name + ` (Bal: $${item.amt.toLocaleString()})`;
+            else if(cat === 'forex') opt.text = item.curr + ` (Bal: ${item.amt.toLocaleString()})`;
+            sel.add(opt);
+        });
     }
 
-    // --- BATCH UPDATE ---
-    async function updateStockPrices() {
-        if(myData.stocks.length === 0) return alert("No stocks to update.");
-        
-        const btn = document.getElementById('btnUpdateStock');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin-custom"></i> Updating...';
-        btn.disabled = true;
+    function calcCurrentTotal() {
+        let t = 0;
+        myData.banks.forEach(d=>t+=d.amt);
+        myData.stocks.forEach(s=>t+=s.shares*s.price*(rates[s.curr]||1));
+        myData.insurances.forEach(d=>t+=d.amt*(rates[d.curr]||1));
+        myData.cash.forEach(d=>t+=d.amt*(rates[d.curr]||1));
+        myData.forex.forEach(d=>t+=d.amt*(rates[d.curr]||1));
+        return Math.round(t);
+    }
 
-        let updatedCount = 0;
+    function addTransaction() {
+        const type = document.querySelector('input[name="txType"]:checked').value;
+        const category = document.getElementById('txCategory').value;
+        const assetIndex = document.getElementById('txAssetIndex').value;
+        const amount = Number(document.getElementById('txAmount').value);
+        const memo = document.getElementById('txMemo').value;
 
-        for (let s of myData.stocks) {
-            let symbol = s.code;
-            if(s.curr === 'TWD' && !symbol.includes('.TW') && !isNaN(symbol)) symbol += '.TW';
-            else if (s.curr === 'HKD' && !symbol.includes('.HK')) symbol = symbol.padStart(4, '0') + '.HK';
+        if(assetIndex === "") return alert("Please select a valid asset account.");
+        if(!amount || amount <= 0) return alert("Invalid amount.");
 
-            try {
-                const proxyUrl = 'https://corsproxy.io/?'; 
-                const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
-                const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-                const json = await res.json();
-                
-                if(json.chart && json.chart.result && json.chart.result[0]) {
-                    const price = json.chart.result[0].meta.regularMarketPrice;
-                    if(price) { s.price = price; updatedCount++; }
-                }
-            } catch(e) { console.log("Update failed for " + symbol); }
-        }
+        let asset = myData[category][assetIndex];
+        if(type === 'in') asset.amt += amount; else asset.amt -= amount;
+
+        const now = new Date();
+        const ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
+        let name = category==='banks'?asset.bank:(category==='cash'?asset.name:asset.curr);
+
+        let newTotal = calcCurrentTotal();
+        addLedgerEntry(ts, type, name, amount, memo, newTotal, asset.amt);
 
         saveData();
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        alert(`Updated ${updatedCount} stocks.`);
+        document.getElementById('txAmount').value = "";
+        document.getElementById('txMemo').value = "";
+        updateTxAssetList(); 
+        alert("Recorded.");
     }
 
-    // --- DATA BACKUP ---
-    function downloadData() {
-        const data = { assets: myData, history: myHistory };
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `asset_backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
+    function addLedgerEntry(date, type, assetName, amount, memo, totalBal, assetBal) {
+        myLedger.unshift({
+            date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
+        });
+        localStorage.setItem("cleanAssetLedgerV10", JSON.stringify(myLedger));
+        renderLedger();
     }
 
-    function uploadData(input) {
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const json = JSON.parse(e.target.result);
-                if(json.assets && json.history) {
-                    myData = json.assets;
-                    myHistory = json.history;
-                    saveData();
-                    localStorage.setItem("navyHistoryAuto", JSON.stringify(myHistory));
-                    alert("Data restored!");
-                }
-            } catch(err) { alert("Error reading file."); }
-        };
-        reader.readAsText(file);
-        input.value = '';
+    function renderLedger() {
+        const div = document.getElementById("ledgerList");
+        if(myLedger.length === 0) { div.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-muted">No transactions recorded.</td></tr>'; return; }
+        let html = "";
+        myLedger.forEach(tx => {
+            let debit = tx.type === 'in' ? `$${tx.amount.toLocaleString()}` : '';
+            let credit = tx.type === 'out' ? `$${tx.amount.toLocaleString()}` : '';
+            html += `<tr>
+                <td class="col-date">${tx.date.split(' ')[0]} <span style="color:#94a3b8; font-size:0.75em; display:block">${tx.date.split(' ')[1]}</span></td>
+                <td class="col-desc">${tx.asset}<span>${tx.memo}</span></td>
+                <td class="num-val val-debit">${debit}</td>
+                <td class="num-val val-credit">${credit}</td>
+                <td class="num-val val-balance">$${tx.totalBal?tx.totalBal.toLocaleString():'-'}</td>
+                <td class="num-val val-note">${tx.assetBal?tx.assetBal.toLocaleString():'0'}</td>
+            </tr>`;
+        });
+        div.innerHTML = html;
     }
 
     function addItem(type) {
         let item = {};
-        if (type === 'banks') {
-            item.bank = document.getElementById("bankSelect").value;
-            item.note = document.getElementById("bankNote").value;
-            item.amt = Number(document.getElementById("bankAmount").value);
-        } else if (type === 'stocks') {
-            item.curr = document.getElementById("stockMarket").value;
-            item.code = document.getElementById("stockCode").value.toUpperCase();
-            item.name = document.getElementById("stockName").value;
-            item.shares = Number(document.getElementById("stockShares").value);
-            item.price = Number(document.getElementById("stockPrice").value);
-        } else if (type === 'insurances') {
-            item.name = document.getElementById("insName").value;
-            item.curr = document.getElementById("insCurrency").value;
-            item.amt = Number(document.getElementById("insAmount").value);
-        } else if (type === 'cash') {
-            item.name = document.getElementById("cashName").value;
-            item.curr = document.getElementById("cashCurrency").value;
-            item.amt = Number(document.getElementById("cashAmount").value);
-        } else if (type === 'forex') {
-            item.curr = document.getElementById("forexSelect").value;
-            item.amt = Number(document.getElementById("forexAmount").value);
+        if (type === 'banks') { item.bank = document.getElementById("bankSelect").value; item.note = document.getElementById("bankNote").value; item.amt = Number(document.getElementById("bankAmount").value); }
+        else if (type === 'stocks') { item.curr = document.getElementById("stockMarket").value; item.code = document.getElementById("stockCode").value.toUpperCase(); item.name = document.getElementById("stockName").value; item.shares = Number(document.getElementById("stockShares").value); item.price = Number(document.getElementById("stockPrice").value); }
+        else if (type === 'insurances') { item.name = document.getElementById("insName").value; item.curr = document.getElementById("insCurrency").value; item.amt = Number(document.getElementById("insAmount").value); }
+        else if (type === 'cash') { item.name = document.getElementById("cashName").value; item.curr = document.getElementById("cashCurrency").value; item.amt = Number(document.getElementById("cashAmount").value); }
+        else if (type === 'forex') { item.curr = document.getElementById("forexSelect").value; item.amt = Number(document.getElementById("forexAmount").value); }
+
+        if(!item.amt && type !== 'stocks') return alert("Value required");
+
+        const now = new Date();
+        const ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
+
+        let existingIndex = -1;
+        if(type==='stocks') existingIndex = myData.stocks.findIndex(s => s.code === item.code);
+        else if(type==='insurances') existingIndex = myData.insurances.findIndex(i => i.name === item.name);
+        else if(type==='banks') existingIndex = myData.banks.findIndex(b => b.bank === item.bank);
+        else if(type==='cash') existingIndex = myData.cash.findIndex(c => c.name === item.name);
+        else if(type==='forex') existingIndex = myData.forex.findIndex(f => f.curr === item.curr);
+
+        if(existingIndex > -1) {
+            if(type==='stocks') { myData.stocks[existingIndex].shares += item.shares; myData.stocks[existingIndex].price = item.price; } 
+            else { myData[type][existingIndex].amt += item.amt; }
+        } else {
+            myData[type].push(item);
         }
 
-        if(!item.amt && type !== 'stocks') return alert("Please enter value");
-        myData[type].push(item);
-        saveData();
-        document.querySelectorAll("input").forEach(i => i.value = "");
+        let ledgerName = "", ledgerAmt = 0, finalAssetBal = 0;
+        if(type==='banks') { ledgerName = item.bank; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.banks[existingIndex].amt : item.amt; }
+        else if(type==='cash') { ledgerName = item.name; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.cash[existingIndex].amt : item.amt; }
+        else if(type==='forex') { ledgerName = item.curr; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.forex[existingIndex].amt : item.amt; }
+        else if(type==='stocks') { ledgerName = `${item.code} ${item.name}`; ledgerAmt = Math.round(item.shares * item.price * (rates[item.curr]||1)); finalAssetBal = (existingIndex>-1) ? myData.stocks[existingIndex].shares : item.shares; }
+        else if(type==='insurances') { ledgerName = item.name; ledgerAmt = Math.round(item.amt * (rates[item.curr]||1)); finalAssetBal = (existingIndex>-1) ? myData.insurances[existingIndex].amt : item.amt; }
+
+        let newTotal = calcCurrentTotal();
+        let memo = (existingIndex > -1) ? "Deposit / Top-up" : "Initial / New Asset";
+        
+        addLedgerEntry(ts, 'in', ledgerName, ledgerAmt, memo, newTotal, finalAssetBal);
+
+        saveData(); document.querySelectorAll("input").forEach(i => i.value = ""); updateTxAssetList();
     }
 
     function delItem(type, idx) {
-        if(confirm("Delete item?")) { myData[type].splice(idx, 1); saveData(); }
-    }
+        let asset = myData[type][idx];
+        let remainingBal = 0;
+        let assetName = "";
+        
+        if (type === 'banks') { remainingBal = asset.amt; assetName = asset.bank; }
+        else if (type === 'cash') { remainingBal = asset.amt; assetName = asset.name; }
+        else if (type === 'forex') { remainingBal = asset.amt; assetName = asset.curr; }
+        else if (type === 'stocks') { remainingBal = Math.round(asset.shares*asset.price*(rates[asset.curr]||1)); assetName = asset.code; }
+        else if (type === 'insurances') { remainingBal = Math.round(asset.amt*(rates[asset.curr]||1)); assetName = asset.name; }
 
-    function saveData() {
-        localStorage.setItem("navyAssetAuto", JSON.stringify(myData));
-        renderAll();
-    }
-
-    function clearData() {
-        if(confirm("Clear all current assets?")) {
-            localStorage.removeItem("navyAssetAuto");
-            myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] };
-            renderAll();
+        if(confirm(`Delete ${assetName}? A withdrawal of ${remainingBal.toLocaleString()} will be recorded.`)) {
+            const now = new Date();
+            const ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
+            myData[type].splice(idx, 1); 
+            let currentTotal = calcCurrentTotal();
+            addLedgerEntry(ts, 'out', assetName, remainingBal, 'Asset Deletion / Write-off', currentTotal, 0);
+            saveData(); 
+            updateTxAssetList();
         }
     }
 
+    function saveData() { localStorage.setItem("cleanAssetDataV10", JSON.stringify(myData)); renderAll(); }
+    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV10"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
+    
     function recordHistory() {
         const now = new Date();
-        const ts = now.getFullYear() + "-" + 
-                   String(now.getMonth()+1).padStart(2, '0') + "-" + 
-                   String(now.getDate()).padStart(2, '0') + " " + 
-                   String(now.getHours()).padStart(2, '0') + ":" + 
-                   String(now.getMinutes()).padStart(2, '0');
-        
-        myHistory.push({ time: ts, total: currentGrandTotal });
+        const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
+        myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: JSON.parse(JSON.stringify(myData)) });
         myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-        localStorage.setItem("navyHistoryAuto", JSON.stringify(myHistory));
-        alert("Recorded: " + ts);
+        localStorage.setItem("cleanAssetHistoryV10", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
     }
-
-    function clearHistory() {
-        if(confirm("Delete all history?")) {
-            localStorage.removeItem("navyHistoryAuto");
-            myHistory = [];
-            renderHistoryTable();
-            renderChart();
-        }
-    }
-
-    function renderHistoryTable() {
-        const div = document.getElementById("historyList");
-        if(myHistory.length === 0) { div.innerHTML = '<div class="p-3 text-center text-muted">No records.</div>'; return; }
-        
+    function renderSnapshotList() {
+        const div = document.getElementById("snapshotList");
+        if(myHistory.length === 0) { div.innerHTML = '<tr><td colspan="2" class="text-center p-3 text-muted">No snapshots.</td></tr>'; return; }
         let html = "";
         for(let i=myHistory.length-1; i>=0; i--) {
-            let h = myHistory[i];
-            let date = h.time.split(' ')[0];
-            let time = h.time.split(' ')[1];
-            html += `<div class="passbook-row">
-                <div><span class="fw-bold text-dark">${date}</span> <span class="pb-time ms-2">${time}</span></div>
-                <div class="fw-bold text-primary">Asset Snapshot</div>
-                <div class="text-end fw-bold text-dark">$${h.total.toLocaleString()}</div>
-            </div>`;
+            html += `<tr style="cursor:pointer;" onclick="showSnapshotDetails(${i})"><td class="fw-bold text-muted">${myHistory[i].time}</td> <td class="text-end fw-bold text-primary">$${myHistory[i].total.toLocaleString()}</td></tr>`;
         }
         div.innerHTML = html;
-        document.getElementById("recordCount").innerText = myHistory.length;
-        if(myHistory.length>0) document.getElementById("lastRecordVal").innerText = "$" + myHistory[myHistory.length-1].total.toLocaleString();
+    }
+    function showSnapshotDetails(idx) {
+        const rec = myHistory[idx]; const d = rec.details;
+        document.getElementById('modalTitle').innerText = rec.time;
+        document.getElementById('modalTotal').innerText = "$"+rec.total.toLocaleString();
+        let tBank=0,tStock=0,tIns=0,tForex=0,tCash=0;
+        if(d.banks) d.banks.forEach(i=>tBank+=i.amt); if(d.stocks) d.stocks.forEach(i=>tStock+=i.shares*i.price*(rates[i.curr]||1));
+        if(d.insurances) d.insurances.forEach(i=>tIns+=i.amt*(rates[i.curr]||1)); if(d.forex) d.forex.forEach(i=>tForex+=i.amt*(rates[i.curr]||1)); if(d.cash) d.cash.forEach(i=>tCash+=i.amt*(rates[i.curr]||1));
+        const pieCtx = document.getElementById('snapshotPieChart').getContext('2d');
+        if(pieChartInstance) pieChartInstance.destroy();
+        pieChartInstance = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['Stock','Bank','Insur','Forex','Cash'], datasets: [{ data: [tStock,tBank,tIns,tForex,tCash], backgroundColor: ['#1e3a8a','#10b981','#f59e0b','#8b5cf6','#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } } });
+        const contentDiv = document.getElementById('modalDetailsContent');
+        let html = '';
+        const genSec = (t, c, a, l, k, v) => { if(!l||l.length==0)return''; let pct=Math.round((a/rec.total)*100); let r=l.map(i=>{ let val=i[v]; if(t==='Stocks') val=Math.round(i.shares*i.price*(rates[i.curr]||1)); else if(i.curr&&i.curr!=='TWD') val=Math.round(i.amt*(rates[i.curr]||1)); let n=i[k]||i.curr; if(t==='Stocks') n=`${i.code} ${i.name}`; return `<div class="detail-row"><span class="detail-label">${n}</span><span class="detail-val">$${val.toLocaleString()}</span></div>`; }).join(''); return `<div class="detail-card"><h6><span class="legend-dot" style="background:${c}"></span> ${t} <span class="ms-auto small text-muted">${pct}%</span></h6>${r}<div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold text-dark"><span>Subtotal</span> <span>$${Math.round(a).toLocaleString()}</span></div></div>`; };
+        html += genSec('Stocks','#1e3a8a',tStock,d.stocks,'name','shares'); html += genSec('Banks','#10b981',tBank,d.banks,'bank','amt'); html += genSec('Insurance','#f59e0b',tIns,d.insurances,'name','amt'); html += genSec('Forex','#8b5cf6',tForex,d.forex,'curr','amt'); html += genSec('Cash','#64748b',tCash,d.cash,'name','amt');
+        contentDiv.innerHTML = html;
+        new bootstrap.Modal(document.getElementById('snapshotModal')).show();
     }
 
     function renderChart() {
         const ctx = document.getElementById('assetChart').getContext('2d');
         if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: myHistory.map(h => h.time),
-                datasets: [{
-                    label: 'Net Worth (TWD)',
-                    data: myHistory.map(h => h.total),
-                    borderColor: '#1e3a8a',
-                    backgroundColor: 'rgba(30, 58, 138, 0.1)',
-                    borderWidth: 2, fill: true, tension: 0.3
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
+        chartInstance = new Chart(ctx, { type: 'line', data: { labels: myHistory.map(h => h.time), datasets: [{ label: 'Net Worth', data: myHistory.map(h => h.total), borderColor: '#1e3a8a', backgroundColor: 'rgba(30,58,138,0.1)', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
+    }
+    
+    // RENDER RATE TABLE
+    function renderRateTable() {
+        const list = ['USD', 'CNY', 'JPY', 'KRW', 'EUR', 'HKD', 'AUD', 'CZK'];
+        let html = '';
+        list.forEach(c => {
+            let r = rates[c] || 0;
+            html += `<tr class="rate-row"><td class="text-muted fw-bold ps-4">${c}</td><td class="text-end fw-bold pe-4 text-dark">${r.toFixed(4)}</td></tr>`;
         });
+        document.getElementById('rateTableBody').innerHTML = html;
     }
 
-    async function fetchLiveRates() {
-        try {
-            let res = await fetch('https://api.exchangerate-api.com/v4/latest/TWD');
-            let data = await res.json();
-            for(let k in data.rates) rates[k] = 1/data.rates[k];
-            rates["TWD"] = 1; renderAll();
-        } catch(e) {}
+    async function fetchSingleStockPrice() { const m=document.getElementById('stockMarket').value; let s=document.getElementById('stockCode').value.trim(); const b=document.getElementById('btnFetchPrice'); const p=document.getElementById('stockPrice'); if(!s)return; if(m==='TWD'&&!isNaN(s))s+='.TW'; else if(m==='HKD')s=s.padStart(4,'0')+'.HK'; b.innerHTML='...'; b.disabled=true; try{ const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${s}`)); const j=await r.json(); p.value=j.chart.result[0].meta.regularMarketPrice; }catch(e){alert("Error");} b.innerHTML='<i class="fas fa-search"></i>'; b.disabled=false; }
+    async function updateStockPrices() { if(myData.stocks.length==0)return; const b=document.getElementById('btnUpdateStock'); b.innerHTML='Updating...'; b.disabled=true; 
+    let oldVal = 0; myData.stocks.forEach(s=>oldVal+=s.shares*s.price*(rates[s.curr]||1));
+    for(let s of myData.stocks){ let sym=s.code; if(s.curr==='TWD'&&!isNaN(sym))sym+='.TW'; try{ const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}`)); const j=await r.json(); s.price=j.chart.result[0].meta.regularMarketPrice||s.price; }catch(e){} } 
+    let newVal = 0; myData.stocks.forEach(s=>newVal+=s.shares*s.price*(rates[s.curr]||1)); let diff=Math.round(newVal-oldVal);
+    if(diff!==0) { let now=new Date(); let ts=now.toISOString().slice(0,10)+" "+now.toTimeString().slice(0,5); let type=diff>0?'in':'out'; addLedgerEntry(ts,type,"Stock Portfolio",Math.abs(diff),"Fair Value Adj.",calcCurrentTotal(),Math.round(newVal)); }
+    saveData(); b.innerHTML='Update Prices'; b.disabled=false; alert('Updated'); }
+    
+    async function fetchLiveRates() { 
+        try { 
+            const r = await fetch('https://api.exchangerate-api.com/v4/latest/TWD'); 
+            const d = await r.json(); 
+            for(let k in d.rates) rates[k]=1/d.rates[k]; 
+            rates["TWD"]=1; 
+            document.getElementById('rateBadge').style.display='inline-block';
+            renderAll(); 
+            renderRateTable();
+        } catch(e){} 
     }
+    function downloadData() { const d={a:myData,h:myHistory,l:myLedger}; const b=new Blob([JSON.stringify(d)],{type:'json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='backup.json'; a.click(); }
+    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("eliteAssetLedgerClean", JSON.stringify(myLedger)); localStorage.setItem("eliteAssetHistoryClean", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
-
-        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => {
-            tBank += d.amt;
-            return `<tr><td><div class="fw-bold">${d.bank.split(' ')[0]}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-times text-muted" style="cursor:pointer" onclick="delItem('banks',${i})"></i></td></tr>`;
-        }).join('');
-
-        document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => {
-            let val = s.shares * s.price * (rates[s.curr]||1); tStock += val;
-            let badge = s.curr==='USD'?'bg-primary':(s.curr==='HKD'?'bg-danger':'bg-success');
-            return `<tr><td><span class="badge ${badge} text-white me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${s.price.toFixed(2)}</td><td class="text-end fw-bold text-success">$${Math.round(val).toLocaleString()}</td><td class="text-end"><i class="fas fa-times text-muted" style="cursor:pointer" onclick="delItem('stocks',${i})"></i></td></tr>`;
-        }).join('');
-
-        document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => {
-            let val = d.amt * (rates[d.curr]||1); tIns += val;
-            return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(val).toLocaleString()}</td><td class="text-end"><i class="fas fa-times text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`;
-        }).join('');
-
-        let cfHtml = "";
-        myData.cash.forEach((d,i) => {
-            let val = d.amt * (rates[d.curr]||1); tCash += val;
-            cfHtml += `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(val).toLocaleString()}</td><td class="text-end"><i class="fas fa-times text-muted" onclick="delItem('cash',${i})"></i></td></tr>`;
-        });
-        myData.forex.forEach((d,i) => {
-            let val = d.amt * (rates[d.curr]||1); tForex += val;
-            cfHtml += `<tr><td><div class="fw-bold">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(val).toLocaleString()}</td><td class="text-end"><i class="fas fa-times text-muted" onclick="delItem('forex',${i})"></i></td></tr>`;
-        });
-        document.getElementById("listCashForex").innerHTML = cfHtml;
-
-        document.getElementById("sumBank").innerText = "$" + Math.round(tBank).toLocaleString();
-        document.getElementById("sumStock").innerText = "$" + Math.round(tStock).toLocaleString();
-        document.getElementById("sumIns").innerText = "$" + Math.round(tIns).toLocaleString();
-        document.getElementById("sumForex").innerText = "$" + Math.round(tForex).toLocaleString();
-        document.getElementById("sumCash").innerText = "$" + Math.round(tCash).toLocaleString();
-        
-        currentGrandTotal = Math.round(tBank + tStock + tIns + tForex + tCash);
-        document.getElementById("grandTotal").innerText = "$" + currentGrandTotal.toLocaleString();
+        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank.split(' ')[0]}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => { let v=s.shares*s.price*(rates[s.curr]||1); tStock+=v; return `<tr><td><span class="badge bg-light text-dark border me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${s.price}</td><td class="text-end fw-bold text-success">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('stocks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => { let v=d.amt*(rates[d.curr]||1); tIns+=v; return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`; }).join('');
+        let cf = "";
+        myData.cash.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tCash+=v; cf+=`<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('cash',${i})"></i></td></tr>`; });
+        myData.forex.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tForex+=v; cf+=`<tr><td><div class="fw-bold">${d.curr}</div><div class="small text-muted">原幣: ${d.amt.toLocaleString()}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('forex',${i})"></i></td></tr>`; });
+        document.getElementById("listCashForex").innerHTML = cf;
+        document.getElementById("sumBank").innerText = "$"+Math.round(tBank).toLocaleString(); document.getElementById("sumStock").innerText = "$"+Math.round(tStock).toLocaleString(); document.getElementById("sumIns").innerText = "$"+Math.round(tIns).toLocaleString(); document.getElementById("sumForex").innerText = "$"+Math.round(tForex).toLocaleString(); document.getElementById("sumCash").innerText = "$"+Math.round(tCash).toLocaleString();
+        currentGrandTotal = Math.round(tBank+tStock+tIns+tForex+tCash); document.getElementById("grandTotal").innerText = "$"+currentGrandTotal.toLocaleString();
     }
 </script>
 </body>
