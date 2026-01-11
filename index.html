@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management Elite (Bank Fix)</title>
+    <title>Asset Management </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -324,13 +324,23 @@
     ];
 
     window.onload = function() {
-        if(localStorage.getItem("cleanAssetDataV18")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV18"));
-        if(localStorage.getItem("cleanAssetHistoryV18")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV18"));
-        if(localStorage.getItem("cleanAssetLedgerV18")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV18"));
+        if(localStorage.getItem("cleanAssetDataV19")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV19"));
+        if(localStorage.getItem("cleanAssetHistoryV19")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV19"));
+        if(localStorage.getItem("cleanAssetLedgerV19")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV19"));
+        
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
-        fetchLiveRates(false); // Initial load
+        // AUTO-REPAIR BANK NAMES
+        if(myData.banks) {
+            myData.banks.forEach(b => {
+                let code = b.bank.split(' ')[0];
+                let match = twBanks.find(tb => tb.startsWith(code));
+                if(match) b.bank = match;
+            });
+        }
+
+        fetchLiveRates(false); 
         updateTxAssetList();
         renderAll();
         renderLedger();
@@ -611,7 +621,16 @@
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
-        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank.split(' ')[0]}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { 
+            // Display Fix: Force check against twBanks every render
+            let displayBank = d.bank;
+            let match = twBanks.find(tb => tb.startsWith(d.bank.split(' ')[0]));
+            if (match) displayBank = match;
+            
+            tBank+=d.amt; 
+            return `<tr><td><div class="fw-bold">${displayBank}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; 
+        }).join('');
+        
         document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => { let v=s.shares*s.price*(rates[s.curr]||1); tStock+=v; return `<tr><td><span class="badge bg-light text-dark border me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${sym[s.curr]||s.curr}${s.price}</td><td class="text-end fw-bold text-success">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('stocks',${i})"></i></td></tr>`; }).join('');
         document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => { let v=d.amt*(rates[d.curr]||1); tIns+=v; return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`; }).join('');
         
