@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management </title>
+    <title>Asset Management Elite (Split View)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -70,6 +70,7 @@
         .icon-bank { background: #f0fdf4; color: #166534; }   
         .icon-ins { background: #fefce8; color: #854d0e; }    
         .icon-cash { background: #f8fafc; color: #475569; }   
+        .icon-forex { background: #e0e7ff; color: #4338ca; }
         .card-title-text { font-weight: 700; color: var(--navy-dark); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .card-body { padding: 24px; }
 
@@ -181,7 +182,7 @@
 
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card h-30">
+                <div class="card">
                     <div class="card-header-flex"><i class="fas fa-plus-circle me-2 text-primary"></i> <span class="card-title-text">Add Asset</span></div>
                     <div class="card-body">
                         <div class="btn-type-grid">
@@ -235,9 +236,11 @@
             <div class="col-lg-8">
                 <div class="card"><div class="card-header-flex"><div class="title-icon icon-equity"><i class="fas fa-chart-pie"></i></div><span class="card-title-text">Equity</span><div class="ms-auto"><button class="btn btn-sm btn-outline-primary fw-bold" id="btnUpdateStock" onclick="updateStockPrices()">Update Prices</button></div></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listStock"></tbody></table></div></div>
                 <div class="card"><div class="card-header-flex"><div class="title-icon icon-bank"><i class="fas fa-university"></i></div><span class="card-title-text">Bank</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listBank"></tbody></table></div></div>
+                
                 <div class="row g-4">
-                    <div class="col-md-6"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div><span class="card-title-text">Insurance</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div></div></div>
-                    <div class="col-md-6"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-cash"><i class="fas fa-coins"></i></div><span class="card-title-text">Cash/Forex</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCashForex"></tbody></table></div></div></div>
+                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div><span class="card-title-text">Insurance</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div></div></div>
+                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-cash"><i class="fas fa-wallet"></i></div><span class="card-title-text">Cash</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCash"></tbody></table></div></div></div>
+                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-forex"><i class="fas fa-globe"></i></div><span class="card-title-text">Forex</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listForex"></tbody></table></div></div></div>
                 </div>
             </div>
         </div>
@@ -286,15 +289,31 @@
     let myHistory = [], myLedger = []; 
     // Initial rates with ALL supported currencies
     let rates = { "TWD": 1, "USD": 32.5, "JPY": 0.21, "CNY": 4.5, "EUR": 34.5, "HKD": 4.1, "AUD": 21.0, "CZK": 1.4, "KRW": 0.024 };
+    
+    // Currency Symbols Map
+    const sym = {
+        "TWD": "NT$", "USD": "$", "JPY": "¥", "KRW": "₩", "CNY": "¥", 
+        "EUR": "€", "HKD": "HK$", "AUD": "A$", "CZK": "Kč"
+    };
+
     let currentGrandTotal = 0;
     let chartInstance = null, pieChartInstance = null;
 
-    const twBanks = ["822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "807 Sinopac 永豐", "803 Union 聯邦", "007 First 第一銀行", "008 Hua Nan 華南銀行"];
+    // Expanded Bank List
+    const twBanks = [
+        "822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", 
+        "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "823 Next Bank 將來銀行",
+        "807 Sinopac 永豐銀行", "803 Union 聯邦銀行", "007 First 第一銀行", "008 Hua Nan 華南銀行",
+        "004 BOT 臺灣銀行", "005 Land Bank 土地銀行", "006 Coop Bank 合作金庫", "009 Chang Hwa 彰化銀行",
+        "011 Shanghai 上海商銀", "016 Kaohsiung 高雄銀行", "017 Mega 兆豐銀行", "021 Citi 花旗銀行",
+        "050 Standard Chartered 渣打", "052 HSBC 匯豐銀行", "805 Far Eastern 遠東商銀", "806 Yuananta 元大銀行"
+    ];
 
     window.onload = function() {
-        if(localStorage.getItem("cleanAssetDataV12")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV12"));
-        if(localStorage.getItem("cleanAssetHistoryV12")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV12"));
-        if(localStorage.getItem("cleanAssetLedgerV12")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV12"));
+        if(localStorage.getItem("cleanAssetDataV16")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV16"));
+        if(localStorage.getItem("cleanAssetHistoryV16")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV16"));
+        if(localStorage.getItem("cleanAssetLedgerV16")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV16"));
+        
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
@@ -327,9 +346,9 @@
         if(!list || list.length === 0) { let opt = document.createElement('option'); opt.text = "No accounts available"; opt.value = ""; sel.add(opt); return; }
         list.forEach((item, index) => {
             let opt = document.createElement('option'); opt.value = index;
-            if(cat === 'banks') opt.text = item.bank + ` (Bal: $${item.amt.toLocaleString()})`;
-            else if(cat === 'cash') opt.text = item.name + ` (Bal: $${item.amt.toLocaleString()})`;
-            else if(cat === 'forex') opt.text = item.curr + ` (Bal: ${item.amt.toLocaleString()})`;
+            if(cat === 'banks') opt.text = item.bank + ` (Bal: NT$${item.amt.toLocaleString()})`;
+            else if(cat === 'cash') opt.text = item.name + ` (Bal: ${sym[item.curr]||item.curr}${item.amt.toLocaleString()})`;
+            else if(cat === 'forex') opt.text = item.curr + ` (Bal: ${sym[item.curr]||item.curr}${item.amt.toLocaleString()})`;
             sel.add(opt);
         });
     }
@@ -375,7 +394,7 @@
         myLedger.unshift({
             date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
         });
-        localStorage.setItem("cleanAssetLedgerV12", JSON.stringify(myLedger));
+        localStorage.setItem("cleanAssetLedgerV16", JSON.stringify(myLedger));
         renderLedger();
     }
 
@@ -384,23 +403,33 @@
         if(myLedger.length === 0) { div.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-muted">No transactions recorded.</td></tr>'; return; }
         let html = "";
         myLedger.forEach(tx => {
-            let debit = tx.type === 'in' ? `$${tx.amount.toLocaleString()}` : '';
-            let credit = tx.type === 'out' ? `$${tx.amount.toLocaleString()}` : '';
+            let debit = tx.type === 'in' ? `${tx.amount.toLocaleString()}` : '';
+            let credit = tx.type === 'out' ? `${tx.amount.toLocaleString()}` : '';
             html += `<tr>
                 <td class="col-date">${tx.date.split(' ')[0]} <span style="color:#94a3b8; font-size:0.75em; display:block">${tx.date.split(' ')[1]}</span></td>
                 <td class="col-desc">${tx.asset}<span>${tx.memo}</span></td>
                 <td class="num-val val-debit">${debit}</td>
                 <td class="num-val val-credit">${credit}</td>
-                <td class="num-val val-balance">$${tx.totalBal?tx.totalBal.toLocaleString():'-'}</td>
+                <td class="num-val val-balance">NT$${tx.totalBal?tx.totalBal.toLocaleString():'-'}</td>
                 <td class="num-val val-note">${tx.assetBal!==undefined?tx.assetBal.toLocaleString():'-'}</td>
             </tr>`;
         });
         div.innerHTML = html;
     }
 
+    // --- ASSET LOGIC (MERGE & SYNC) ---
     function addItem(type) {
         let item = {};
-        if (type === 'banks') { item.bank = document.getElementById("bankSelect").value; item.note = document.getElementById("bankNote").value; item.amt = Number(document.getElementById("bankAmount").value); }
+        if (type === 'banks') { 
+            // Bank Name Fix
+            let bankVal = document.getElementById("bankSelect").value;
+            // If user typed custom code but matches list, use list name
+            let match = twBanks.find(b => b.startsWith(bankVal.split(' ')[0]));
+            item.bank = match ? match : bankVal;
+            
+            item.note = document.getElementById("bankNote").value; 
+            item.amt = Number(document.getElementById("bankAmount").value); 
+        }
         else if (type === 'stocks') { item.curr = document.getElementById("stockMarket").value; item.code = document.getElementById("stockCode").value.toUpperCase(); item.name = document.getElementById("stockName").value; item.shares = Number(document.getElementById("stockShares").value); item.price = Number(document.getElementById("stockPrice").value); }
         else if (type === 'insurances') { item.name = document.getElementById("insName").value; item.curr = document.getElementById("insCurrency").value; item.amt = Number(document.getElementById("insAmount").value); }
         else if (type === 'cash') { item.name = document.getElementById("cashName").value; item.curr = document.getElementById("cashCurrency").value; item.amt = Number(document.getElementById("cashAmount").value); }
@@ -464,29 +493,29 @@
         }
     }
 
-    function saveData() { localStorage.setItem("cleanAssetDataV12", JSON.stringify(myData)); renderAll(); }
-    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV12"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
+    function saveData() { localStorage.setItem("cleanAssetDataV16", JSON.stringify(myData)); renderAll(); }
+    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV16"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
     
     function recordHistory() {
         const now = new Date();
         const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
         myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: JSON.parse(JSON.stringify(myData)) });
         myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-        localStorage.setItem("cleanAssetHistoryV12", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
+        localStorage.setItem("cleanAssetHistoryV16", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
     }
     function renderSnapshotList() {
         const div = document.getElementById("snapshotList");
         if(myHistory.length === 0) { div.innerHTML = '<tr><td colspan="2" class="text-center p-3 text-muted">No snapshots.</td></tr>'; return; }
         let html = "";
         for(let i=myHistory.length-1; i>=0; i--) {
-            html += `<tr style="cursor:pointer;" onclick="showSnapshotDetails(${i})"><td class="fw-bold text-muted">${myHistory[i].time}</td> <td class="text-end fw-bold text-primary">$${myHistory[i].total.toLocaleString()}</td></tr>`;
+            html += `<tr style="cursor:pointer;" onclick="showSnapshotDetails(${i})"><td class="fw-bold text-muted">${myHistory[i].time}</td> <td class="text-end fw-bold text-primary">NT$${myHistory[i].total.toLocaleString()}</td></tr>`;
         }
         div.innerHTML = html;
     }
     function showSnapshotDetails(idx) {
         const rec = myHistory[idx]; const d = rec.details;
         document.getElementById('modalTitle').innerText = rec.time;
-        document.getElementById('modalTotal').innerText = "$"+rec.total.toLocaleString();
+        document.getElementById('modalTotal').innerText = "NT$"+rec.total.toLocaleString();
         let tBank=0,tStock=0,tIns=0,tForex=0,tCash=0;
         if(d.banks) d.banks.forEach(i=>tBank+=i.amt); if(d.stocks) d.stocks.forEach(i=>tStock+=i.shares*i.price*(rates[i.curr]||1));
         if(d.insurances) d.insurances.forEach(i=>tIns+=i.amt*(rates[i.curr]||1)); if(d.forex) d.forex.forEach(i=>tForex+=i.amt*(rates[i.curr]||1)); if(d.cash) d.cash.forEach(i=>tCash+=i.amt*(rates[i.curr]||1));
@@ -495,7 +524,7 @@
         pieChartInstance = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['Stock','Bank','Insur','Forex','Cash'], datasets: [{ data: [tStock,tBank,tIns,tForex,tCash], backgroundColor: ['#1e3a8a','#10b981','#f59e0b','#8b5cf6','#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } } });
         const contentDiv = document.getElementById('modalDetailsContent');
         let html = '';
-        const genSec = (t, c, a, l, k, v) => { if(!l||l.length==0)return''; let pct=Math.round((a/rec.total)*100); let r=l.map(i=>{ let val=i[v]; if(t==='Stocks') val=Math.round(i.shares*i.price*(rates[i.curr]||1)); else if(i.curr&&i.curr!=='TWD') val=Math.round(i.amt*(rates[i.curr]||1)); let n=i[k]||i.curr; if(t==='Stocks') n=`${i.code} ${i.name}`; return `<div class="detail-row"><span class="detail-label">${n}</span><span class="detail-val">$${val.toLocaleString()}</span></div>`; }).join(''); return `<div class="detail-card"><h6><span class="legend-dot" style="background:${c}"></span> ${t} <span class="ms-auto small text-muted">${pct}%</span></h6>${r}<div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold text-dark"><span>Subtotal</span> <span>$${Math.round(a).toLocaleString()}</span></div></div>`; };
+        const genSec = (t, c, a, l, k, v) => { if(!l||l.length==0)return''; let pct=Math.round((a/rec.total)*100); let r=l.map(i=>{ let val=i[v]; if(t==='Stocks') val=Math.round(i.shares*i.price*(rates[i.curr]||1)); else if(i.curr&&i.curr!=='TWD') val=Math.round(i.amt*(rates[i.curr]||1)); let n=i[k]||i.curr; if(t==='Stocks') n=`${i.code} ${i.name}`; return `<div class="detail-row"><span class="detail-label">${n}</span><span class="detail-val">NT$${val.toLocaleString()}</span></div>`; }).join(''); return `<div class="detail-card"><h6><span class="legend-dot" style="background:${c}"></span> ${t} <span class="ms-auto small text-muted">${pct}%</span></h6>${r}<div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold text-dark"><span>Subtotal</span> <span>NT$${Math.round(a).toLocaleString()}</span></div></div>`; };
         html += genSec('Stocks','#1e3a8a',tStock,d.stocks,'name','shares'); html += genSec('Banks','#10b981',tBank,d.banks,'bank','amt'); html += genSec('Insurance','#f59e0b',tIns,d.insurances,'name','amt'); html += genSec('Forex','#8b5cf6',tForex,d.forex,'curr','amt'); html += genSec('Cash','#64748b',tCash,d.cash,'name','amt');
         contentDiv.innerHTML = html;
         new bootstrap.Modal(document.getElementById('snapshotModal')).show();
@@ -567,19 +596,24 @@
     }
 
     function downloadData() { const d={a:myData,h:myHistory,l:myLedger}; const b=new Blob([JSON.stringify(d)],{type:'json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='backup.json'; a.click(); }
-    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV12", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV12", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
+    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV16", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV16", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
-        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank.split(' ')[0]}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
-        document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => { let v=s.shares*s.price*(rates[s.curr]||1); tStock+=v; return `<tr><td><span class="badge bg-light text-dark border me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${s.price}</td><td class="text-end fw-bold text-success">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('stocks',${i})"></i></td></tr>`; }).join('');
-        document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => { let v=d.amt*(rates[d.curr]||1); tIns+=v; return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`; }).join('');
-        let cf = "";
-        myData.cash.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tCash+=v; cf+=`<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('cash',${i})"></i></td></tr>`; });
-        myData.forex.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tForex+=v; cf+=`<tr><td><div class="fw-bold">${d.curr}</div><div class="small text-muted">原幣: ${d.amt.toLocaleString()}</div></td><td class="text-end fw-bold">$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('forex',${i})"></i></td></tr>`; });
-        document.getElementById("listCashForex").innerHTML = cf;
-        document.getElementById("sumBank").innerText = "$"+Math.round(tBank).toLocaleString(); document.getElementById("sumStock").innerText = "$"+Math.round(tStock).toLocaleString(); document.getElementById("sumIns").innerText = "$"+Math.round(tIns).toLocaleString(); document.getElementById("sumForex").innerText = "$"+Math.round(tForex).toLocaleString(); document.getElementById("sumCash").innerText = "$"+Math.round(tCash).toLocaleString();
-        currentGrandTotal = Math.round(tBank+tStock+tIns+tForex+tCash); document.getElementById("grandTotal").innerText = "$"+currentGrandTotal.toLocaleString();
+        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => { let v=s.shares*s.price*(rates[s.curr]||1); tStock+=v; return `<tr><td><span class="badge bg-light text-dark border me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${sym[s.curr]||s.curr}${s.price}</td><td class="text-end fw-bold text-success">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('stocks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => { let v=d.amt*(rates[d.curr]||1); tIns+=v; return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`; }).join('');
+        
+        let cfCash = "";
+        myData.cash.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tCash+=v; cfCash+=`<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('cash',${i})"></i></td></tr>`; });
+        document.getElementById("listCash").innerHTML = cfCash;
+
+        let cfForex = "";
+        myData.forex.forEach((d,i) => { let v=d.amt*(rates[d.curr]||1); tForex+=v; cfForex+=`<tr><td><div class="fw-bold">${d.curr}</div><div class="small text-muted">原幣: ${sym[d.curr]||d.curr}${d.amt.toLocaleString()}</div></td><td class="text-end fw-bold">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('forex',${i})"></i></td></tr>`; });
+        document.getElementById("listForex").innerHTML = cfForex;
+
+        document.getElementById("sumBank").innerText = "NT$"+Math.round(tBank).toLocaleString(); document.getElementById("sumStock").innerText = "NT$"+Math.round(tStock).toLocaleString(); document.getElementById("sumIns").innerText = "NT$"+Math.round(tIns).toLocaleString(); document.getElementById("sumForex").innerText = "NT$"+Math.round(tForex).toLocaleString(); document.getElementById("sumCash").innerText = "NT$"+Math.round(tCash).toLocaleString();
+        currentGrandTotal = Math.round(tBank+tStock+tIns+tForex+tCash); document.getElementById("grandTotal").innerText = "NT$"+currentGrandTotal.toLocaleString();
     }
 </script>
 </body>
