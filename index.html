@@ -238,9 +238,23 @@
                 <div class="card"><div class="card-header-flex"><div class="title-icon icon-bank"><i class="fas fa-university"></i></div><span class="card-title-text">Bank</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listBank"></tbody></table></div></div>
                 
                 <div class="row g-4">
-                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div><span class="card-title-text">Insurance</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div></div></div>
-                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-cash"><i class="fas fa-wallet"></i></div><span class="card-title-text">Cash</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCash"></tbody></table></div></div></div>
-                    <div class="col-md-4"><div class="card h-100"><div class="card-header-flex"><div class="title-icon icon-forex"><i class="fas fa-globe"></i></div><span class="card-title-text">Forex</span></div><div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listForex"></tbody></table></div></div></div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header-flex"><div class="title-icon icon-ins"><i class="fas fa-shield-alt"></i></div><span class="card-title-text">Insurance</span></div>
+                            <div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listIns"></tbody></table></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header-flex"><div class="title-icon icon-forex"><i class="fas fa-globe"></i></div><span class="card-title-text">Forex Reserves</span></div>
+                            <div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listForex"></tbody></table></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header-flex"><div class="title-icon icon-cash"><i class="fas fa-wallet"></i></div><span class="card-title-text">Cash on Hand</span></div>
+                            <div class="table-responsive"><table class="table table-hover mb-0"><tbody id="listCash"></tbody></table></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -299,21 +313,12 @@
     let currentGrandTotal = 0;
     let chartInstance = null, pieChartInstance = null;
 
-    // Expanded Bank List
-    const twBanks = [
-        "822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", 
-        "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "823 Next Bank 將來銀行",
-        "807 Sinopac 永豐銀行", "803 Union 聯邦銀行", "007 First 第一銀行", "008 Hua Nan 華南銀行",
-        "004 BOT 臺灣銀行", "005 Land Bank 土地銀行", "006 Coop Bank 合作金庫", "009 Chang Hwa 彰化銀行",
-        "011 Shanghai 上海商銀", "016 Kaohsiung 高雄銀行", "017 Mega 兆豐銀行", "021 Citi 花旗銀行",
-        "050 Standard Chartered 渣打", "052 HSBC 匯豐銀行", "805 Far Eastern 遠東商銀", "806 Yuananta 元大銀行"
-    ];
+    const twBanks = ["822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "807 Sinopac 永豐", "803 Union 聯邦", "007 First 第一銀行", "008 Hua Nan 華南銀行"];
 
     window.onload = function() {
-        if(localStorage.getItem("cleanAssetDataV16")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV16"));
-        if(localStorage.getItem("cleanAssetHistoryV16")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV16"));
-        if(localStorage.getItem("cleanAssetLedgerV16")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV16"));
-        
+        if(localStorage.getItem("cleanAssetDataV17")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV17"));
+        if(localStorage.getItem("cleanAssetHistoryV17")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV17"));
+        if(localStorage.getItem("cleanAssetLedgerV17")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV17"));
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
@@ -394,7 +399,7 @@
         myLedger.unshift({
             date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
         });
-        localStorage.setItem("cleanAssetLedgerV16", JSON.stringify(myLedger));
+        localStorage.setItem("cleanAssetLedgerV17", JSON.stringify(myLedger));
         renderLedger();
     }
 
@@ -423,10 +428,8 @@
         if (type === 'banks') { 
             // Bank Name Fix
             let bankVal = document.getElementById("bankSelect").value;
-            // If user typed custom code but matches list, use list name
             let match = twBanks.find(b => b.startsWith(bankVal.split(' ')[0]));
             item.bank = match ? match : bankVal;
-            
             item.note = document.getElementById("bankNote").value; 
             item.amt = Number(document.getElementById("bankAmount").value); 
         }
@@ -493,15 +496,15 @@
         }
     }
 
-    function saveData() { localStorage.setItem("cleanAssetDataV16", JSON.stringify(myData)); renderAll(); }
-    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV16"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
+    function saveData() { localStorage.setItem("cleanAssetDataV17", JSON.stringify(myData)); renderAll(); }
+    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV17"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
     
     function recordHistory() {
         const now = new Date();
         const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
         myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: JSON.parse(JSON.stringify(myData)) });
         myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-        localStorage.setItem("cleanAssetHistoryV16", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
+        localStorage.setItem("cleanAssetHistoryV17", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
     }
     function renderSnapshotList() {
         const div = document.getElementById("snapshotList");
@@ -600,7 +603,7 @@
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
-        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
+        document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { tBank+=d.amt; return `<tr><td><div class="fw-bold">${d.bank.split(' ')[0]}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; }).join('');
         document.getElementById("listStock").innerHTML = myData.stocks.map((s,i) => { let v=s.shares*s.price*(rates[s.curr]||1); tStock+=v; return `<tr><td><span class="badge bg-light text-dark border me-2">${s.curr}</span><span class="fw-bold">${s.code}</span> <small>${s.name}</small></td><td>${s.shares}</td><td>${sym[s.curr]||s.curr}${s.price}</td><td class="text-end fw-bold text-success">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('stocks',${i})"></i></td></tr>`; }).join('');
         document.getElementById("listIns").innerHTML = myData.insurances.map((d,i) => { let v=d.amt*(rates[d.curr]||1); tIns+=v; return `<tr><td><div class="fw-bold">${d.name}</div><div class="small text-muted">${d.curr}</div></td><td class="text-end fw-bold">NT$${Math.round(v).toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('insurances',${i})"></i></td></tr>`; }).join('');
         
