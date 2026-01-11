@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management</title>
+    <title>Asset Management </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
             --text-muted: #64748b;
             --card-radius: 12px;
             
-            /* Accounting Colors */
+            /* Professional Accounting Colors */
             --acc-header-bg: #1e293b; 
             --acc-header-text: #f8fafc;
             --acc-border: #e2e8f0;
@@ -181,7 +181,7 @@
 
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card h-100">
+                <div class="card h-30">
                     <div class="card-header-flex"><i class="fas fa-plus-circle me-2 text-primary"></i> <span class="card-title-text">Add Asset</span></div>
                     <div class="card-body">
                         <div class="btn-type-grid">
@@ -191,11 +191,34 @@
                             <div class="btn-type" onclick="setForm('cash', this)"><i class="fas fa-wallet"></i>Cash</div>
                             <div class="btn-type" onclick="setForm('forex', this)"><i class="fas fa-globe"></i>Forex</div>
                         </div>
+                        
                         <div id="form-bank" class="asset-form"><label class="form-label">Institution</label><select class="form-select" id="bankSelect"></select><label class="form-label">Memo</label><input type="text" class="form-control" id="bankNote"><label class="form-label">Amount</label><input type="number" class="form-control" id="bankAmount"><button class="btn-navy" onclick="addItem('banks')">Add / Update</button></div>
                         <div id="form-stock" class="asset-form d-none"><label class="form-label">Market</label><select class="form-select" id="stockMarket"><option value="TWD">TWSE</option><option value="USD">US</option><option value="HKD">HK</option></select><label class="form-label">Ticker</label><div class="input-group mb-3"><input type="text" class="form-control mb-0" id="stockCode"><button class="btn btn-outline-primary" type="button" id="btnFetchPrice" onclick="fetchSingleStockPrice()"><i class="fas fa-search"></i></button></div><label class="form-label">Name</label><input type="text" class="form-control" id="stockName"><label class="form-label">Shares</label><input type="number" class="form-control" id="stockShares"><label class="form-label">Price</label><input type="number" class="form-control" id="stockPrice"><button class="btn-navy" onclick="addItem('stocks')">Add / Update</button></div>
                         <div id="form-ins" class="asset-form d-none"><label class="form-label">Policy</label><input type="text" class="form-control" id="insName"><label class="form-label">Currency</label><select class="form-select" id="insCurrency"><option value="TWD">TWD</option><option value="USD">USD</option></select><label class="form-label">Value</label><input type="number" class="form-control" id="insAmount"><button class="btn-navy" onclick="addItem('insurances')">Add / Update</button></div>
-                        <div id="form-cash" class="asset-form d-none"><label class="form-label">Name</label><input type="text" class="form-control" id="cashName"><label class="form-label">Currency</label><select class="form-select" id="cashCurrency"><option value="TWD">TWD</option><option value="USD">USD</option><option value="JPY">JPY</option></select><label class="form-label">Amount</label><input type="number" class="form-control" id="cashAmount"><button class="btn-navy" onclick="addItem('cash')">Add / Update</button></div>
-                        <div id="form-forex" class="asset-form d-none"><label class="form-label">Currency</label><select class="form-select" id="forexSelect"><option value="USD">USD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="EUR">EUR</option></select><label class="form-label">Amount</label><input type="number" class="form-control" id="forexAmount"><button class="btn-navy" onclick="addItem('forex')">Add / Update</button></div>
+                        
+                        <div id="form-cash" class="asset-form d-none">
+                            <label class="form-label">Name</label><input type="text" class="form-control" id="cashName">
+                            <label class="form-label">Currency</label>
+                            <select class="form-select" id="cashCurrency">
+                                <option value="TWD">TWD</option><option value="USD">USD</option><option value="CNY">CNY</option>
+                                <option value="JPY">JPY</option><option value="KRW">KRW</option><option value="EUR">EUR</option>
+                                <option value="HKD">HKD</option><option value="AUD">AUD</option><option value="CZK">CZK</option>
+                            </select>
+                            <label class="form-label">Amount</label><input type="number" class="form-control" id="cashAmount">
+                            <button class="btn-navy" onclick="addItem('cash')">Add / Update</button>
+                        </div>
+                        
+                        <div id="form-forex" class="asset-form d-none">
+                            <label class="form-label">Currency</label>
+                            <select class="form-select" id="forexSelect">
+                                <option value="USD">USD 美金</option><option value="CNY">CNY 人民幣</option>
+                                <option value="JPY">JPY 日幣</option><option value="KRW">KRW 韓元</option>
+                                <option value="EUR">EUR 歐元</option><option value="HKD">HKD 港幣</option>
+                                <option value="AUD">AUD 澳幣</option><option value="CZK">CZK 捷克克朗</option>
+                            </select>
+                            <label class="form-label">Amount</label><input type="number" class="form-control" id="forexAmount">
+                            <button class="btn-navy" onclick="addItem('forex')">Add / Update</button>
+                        </div>
                     </div>
                 </div>
 
@@ -261,20 +284,21 @@
     // CLEAN START
     let myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] };
     let myHistory = [], myLedger = []; 
-    let rates = { "TWD": 1, "USD": 32.5, "JPY": 0.21, "CNY": 4.5, "EUR": 34.5, "HKD": 4.1, "AUD": 21.0, "CZK": 1.4 };
+    // Initial rates with ALL supported currencies
+    let rates = { "TWD": 1, "USD": 32.5, "JPY": 0.21, "CNY": 4.5, "EUR": 34.5, "HKD": 4.1, "AUD": 21.0, "CZK": 1.4, "KRW": 0.024 };
     let currentGrandTotal = 0;
     let chartInstance = null, pieChartInstance = null;
 
     const twBanks = ["822 CTBC 中國信託", "013 Cathay 國泰世華", "808 E.SUN 玉山銀行", "812 Taishin 台新銀行", "012 Fubon 台北富邦", "700 Post 中華郵政", "824 LINE Bank", "807 Sinopac 永豐", "803 Union 聯邦", "007 First 第一銀行", "008 Hua Nan 華南銀行"];
 
     window.onload = function() {
-        if(localStorage.getItem("cleanAssetDataV11")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV11"));
-        if(localStorage.getItem("cleanAssetHistoryV11")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV11"));
-        if(localStorage.getItem("cleanAssetLedgerV11")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV11"));
+        if(localStorage.getItem("cleanAssetDataV12")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV12"));
+        if(localStorage.getItem("cleanAssetHistoryV12")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV12"));
+        if(localStorage.getItem("cleanAssetLedgerV12")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV12"));
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
-        fetchLiveRates(false); // Initial load (silent)
+        fetchLiveRates(false); // Initial load
         updateTxAssetList();
         renderAll();
         renderLedger();
@@ -310,7 +334,6 @@
         });
     }
 
-    // --- HELPER TO CALCULATE TOTAL WITHOUT RENDERING ---
     function calcCurrentTotal() {
         let t = 0;
         myData.banks.forEach(d=>t+=d.amt);
@@ -352,7 +375,7 @@
         myLedger.unshift({
             date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
         });
-        localStorage.setItem("cleanAssetLedgerV11", JSON.stringify(myLedger));
+        localStorage.setItem("cleanAssetLedgerV12", JSON.stringify(myLedger));
         renderLedger();
     }
 
@@ -375,7 +398,6 @@
         div.innerHTML = html;
     }
 
-    // --- ASSET LOGIC (MERGE & SYNC) ---
     function addItem(type) {
         let item = {};
         if (type === 'banks') { item.bank = document.getElementById("bankSelect").value; item.note = document.getElementById("bankNote").value; item.amt = Number(document.getElementById("bankAmount").value); }
@@ -442,15 +464,15 @@
         }
     }
 
-    function saveData() { localStorage.setItem("cleanAssetDataV11", JSON.stringify(myData)); renderAll(); }
-    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV11"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
+    function saveData() { localStorage.setItem("cleanAssetDataV12", JSON.stringify(myData)); renderAll(); }
+    function clearData() { if(confirm("Clear Assets?")) { localStorage.removeItem("cleanAssetDataV12"); myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] }; renderAll(); } }
     
     function recordHistory() {
         const now = new Date();
         const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
         myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: JSON.parse(JSON.stringify(myData)) });
         myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-        localStorage.setItem("cleanAssetHistoryV11", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
+        localStorage.setItem("cleanAssetHistoryV12", JSON.stringify(myHistory)); alert("Snapshot saved: "+ts);
     }
     function renderSnapshotList() {
         const div = document.getElementById("snapshotList");
@@ -498,35 +520,12 @@
 
     async function fetchSingleStockPrice() { const m=document.getElementById('stockMarket').value; let s=document.getElementById('stockCode').value.trim(); const b=document.getElementById('btnFetchPrice'); const p=document.getElementById('stockPrice'); if(!s)return; if(m==='TWD'&&!isNaN(s))s+='.TW'; else if(m==='HKD')s=s.padStart(4,'0')+'.HK'; b.innerHTML='...'; b.disabled=true; try{ const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${s}`)); const j=await r.json(); p.value=j.chart.result[0].meta.regularMarketPrice; }catch(e){alert("Error");} b.innerHTML='<i class="fas fa-search"></i>'; b.disabled=false; }
     
-    async function updateStockPrices() { 
-        if(myData.stocks.length==0)return; 
-        const b=document.getElementById('btnUpdateStock'); 
-        b.innerHTML='Updating...'; b.disabled=true; 
-        
-        let oldVal = 0; myData.stocks.forEach(s=>oldVal+=s.shares*s.price*(rates[s.curr]||1));
-        
-        for(let s of myData.stocks){ 
-            let sym=s.code; 
-            if(s.curr==='TWD'&&!isNaN(sym))sym+='.TW'; 
-            try{ 
-                const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}`)); 
-                const j=await r.json(); 
-                s.price=j.chart.result[0].meta.regularMarketPrice||s.price; 
-            }catch(e){} 
-        } 
-        
-        let newVal = 0; myData.stocks.forEach(s=>newVal+=s.shares*s.price*(rates[s.curr]||1)); 
-        let diff=Math.round(newVal-oldVal);
-        
-        if(diff!==0) { 
-            let now=new Date(); 
-            let ts=now.toISOString().slice(0,10)+" "+now.toTimeString().slice(0,5); 
-            let type=diff>0?'in':'out'; 
-            addLedgerEntry(ts,type,"Stock Portfolio",Math.abs(diff),"Fair Value Adj.",calcCurrentTotal(),Math.round(newVal)); 
-        }
-        
-        saveData(); b.innerHTML='Update Prices'; b.disabled=false; alert('Updated'); 
-    }
+    async function updateStockPrices() { if(myData.stocks.length==0)return; const b=document.getElementById('btnUpdateStock'); b.innerHTML='Updating...'; b.disabled=true; 
+    let oldVal = 0; myData.stocks.forEach(s=>oldVal+=s.shares*s.price*(rates[s.curr]||1));
+    for(let s of myData.stocks){ let sym=s.code; if(s.curr==='TWD'&&!isNaN(sym))sym+='.TW'; try{ const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}`)); const j=await r.json(); s.price=j.chart.result[0].meta.regularMarketPrice||s.price; }catch(e){} } 
+    let newVal = 0; myData.stocks.forEach(s=>newVal+=s.shares*s.price*(rates[s.curr]||1)); let diff=Math.round(newVal-oldVal);
+    if(diff!==0) { let now=new Date(); let ts=now.toISOString().slice(0,10)+" "+now.toTimeString().slice(0,5); let type=diff>0?'in':'out'; addLedgerEntry(ts,type,"Stock Portfolio",Math.abs(diff),"Fair Value Adj.",calcCurrentTotal(),Math.round(newVal)); }
+    saveData(); b.innerHTML='Update Prices'; b.disabled=false; alert('Updated'); }
     
     // FX AUTO-LOG LOGIC
     async function fetchLiveRates(recordEntry = false) { 
@@ -536,7 +535,6 @@
             b.disabled = true;
         }
 
-        // 1. Calc Old Total (using current rates in memory)
         let oldTotal = calcCurrentTotal();
 
         try { 
@@ -549,11 +547,9 @@
             renderAll(); 
             renderRateTable();
 
-            // 2. Calc New Total (using new rates)
             let newTotal = calcCurrentTotal();
             let diff = Math.round(newTotal - oldTotal);
 
-            // 3. Log if manual sync and value changed
             if(recordEntry && diff !== 0) {
                 let now = new Date();
                 let ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
@@ -571,7 +567,7 @@
     }
 
     function downloadData() { const d={a:myData,h:myHistory,l:myLedger}; const b=new Blob([JSON.stringify(d)],{type:'json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='backup.json'; a.click(); }
-    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV11", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV11", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
+    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV12", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV12", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
