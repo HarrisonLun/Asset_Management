@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Manager</title>
+    <title>Asset Management </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -167,7 +167,7 @@
                 </div>
                 <div>
                     <button class="btn btn-sm btn-light text-primary fw-bold me-2" id="btnForceSync" onclick="fetchLiveRates(true)">Force Sync</button>
-                    <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="recordHistorySafe()">Snapshot</button>
+                    <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="recordHistory()">Snapshot</button>
                 </div>
             </div>
             
@@ -304,9 +304,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // DATA V27
+    // CLEAN START
     let myData = { banks: [], stocks: [], insurances: [], cash: [], forex: [] };
     let myHistory = [], myLedger = []; 
+    // Initial rates with ALL supported currencies
     let rates = { "TWD": 1, "USD": 32.5, "JPY": 0.21, "CNY": 4.5, "EUR": 34.5, "HKD": 4.1, "AUD": 21.0, "CZK": 1.4, "KRW": 0.024 };
     
     // Currency Symbols Map
@@ -328,29 +329,15 @@
         "050 Standard Chartered 渣打", "052 HSBC 匯豐銀行", "805 Far Eastern 遠東商銀", "806 Yuananta 元大銀行"
     ];
 
-    // Helper: Timeout fetch wrapper
-    const fetchWithTimeout = (url, options, timeout = 3000) => {
-        return Promise.race([
-            fetch(url, options),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
-        ]);
-    };
-
     window.onload = function() {
-        if(localStorage.getItem("finalDataV27")) {
-            myData = JSON.parse(localStorage.getItem("finalDataV27"));
-            myHistory = JSON.parse(localStorage.getItem("finalHistoryV27") || "[]");
-            myLedger = JSON.parse(localStorage.getItem("finalLedgerV27") || "[]");
-        } else if(localStorage.getItem("cleanAssetDataV26")) {
-            // Migration for convenience
-            myData = JSON.parse(localStorage.getItem("cleanAssetDataV26"));
-            myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV26") || "[]");
-            myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV26") || "[]");
-        }
+        if(localStorage.getItem("cleanAssetDataV21")) myData = JSON.parse(localStorage.getItem("cleanAssetDataV21"));
+        if(localStorage.getItem("cleanAssetHistoryV21")) myHistory = JSON.parse(localStorage.getItem("cleanAssetHistoryV21"));
+        if(localStorage.getItem("cleanAssetLedgerV21")) myLedger = JSON.parse(localStorage.getItem("cleanAssetLedgerV21"));
         
         const sel = document.getElementById("bankSelect");
         twBanks.forEach(b => { let opt = document.createElement("option"); opt.text = b; opt.value = b; sel.add(opt); });
         
+        // AUTO-REPAIR BANK NAMES
         if(myData.banks) {
             myData.banks.forEach(b => {
                 let code = b.bank.split(' ')[0];
@@ -363,7 +350,6 @@
         updateTxAssetList();
         renderAll();
         renderLedger();
-        if(myHistory.length > 0) { renderSnapshotList(); renderChart(); }
     };
 
     function switchPage(page) {
@@ -406,8 +392,10 @@
         return Math.round(t);
     }
 
+    // === CRITICAL LOGIC FIX ===
     function addTransaction() {
-        let type = 'in'; 
+        // 1. Foolproof Type Detection
+        let type = 'in'; // Default
         if(document.getElementById('txTypeOut').checked) type = 'out';
         
         const category = document.getElementById('txCategory').value;
@@ -415,24 +403,21 @@
         const amountVal = document.getElementById('txAmount').value;
         const memo = document.getElementById('txMemo').value;
 
+        // 2. Validation
         if(assetIndex === "") return alert("Please select a valid asset account.");
         const amount = Number(amountVal);
         if(!amountVal || amount <= 0) return alert("Please enter a valid amount.");
 
         let asset = myData[category][assetIndex];
         
+        // 3. Update Asset Value
         if(type === 'in') asset.amt += amount; else asset.amt -= amount;
 
         const now = new Date();
         const ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
         
         let name = "";
-        if(category==='banks') {
-            name = asset.bank;
-            let code = name.split(' ')[0];
-            let match = twBanks.find(tb => tb.startsWith(code));
-            if(match) name = match;
-        }
+        if(category==='banks') name = asset.bank;
         else if(category==='cash') name = asset.name;
         else name = asset.curr;
 
@@ -450,7 +435,7 @@
         myLedger.unshift({
             date: date, type: type, asset: assetName, amount: amount, memo: memo, totalBal: totalBal, assetBal: assetBal
         });
-        localStorage.setItem("finalLedgerV27", JSON.stringify(myLedger));
+        localStorage.setItem("cleanAssetLedgerV21", JSON.stringify(myLedger));
         renderLedger();
     }
 
@@ -460,6 +445,7 @@
         
         let html = "";
         myLedger.forEach(tx => {
+            // SAFE GUARD: If type is missing, assume OUT if empty amount, or skip.
             let debit = (tx.type === 'in' && tx.amount) ? `NT$${tx.amount.toLocaleString()}` : '';
             let credit = (tx.type === 'out' && tx.amount) ? `NT$${tx.amount.toLocaleString()}` : '';
             
@@ -475,9 +461,11 @@
         div.innerHTML = html;
     }
 
+    // --- ASSET LOGIC (MERGE & SYNC) ---
     function addItem(type) {
         let item = {};
         if (type === 'banks') { 
+            // Bank Name Fix
             let bankVal = document.getElementById("bankSelect").value;
             let match = twBanks.find(b => b.startsWith(bankVal.split(' ')[0]));
             item.bank = match ? match : bankVal;
@@ -502,21 +490,16 @@
         else if(type==='forex') existingIndex = myData.forex.findIndex(f => f.curr === item.curr);
 
         if(existingIndex > -1) {
+            // MERGE
             if(type==='stocks') { myData.stocks[existingIndex].shares += item.shares; myData.stocks[existingIndex].price = item.price; } 
             else { myData[type][existingIndex].amt += item.amt; }
         } else {
             myData[type].push(item);
         }
 
+        // --- AUTO SYNC LEDGER FOR LIQUID ASSETS ---
         let ledgerName = "", ledgerAmt = 0, finalAssetBal = 0;
-        if(type==='banks') { 
-            ledgerName = item.bank; 
-            let code = ledgerName.split(' ')[0];
-            let match = twBanks.find(tb => tb.startsWith(code));
-            if(match) ledgerName = match;
-            ledgerAmt = item.amt; 
-            finalAssetBal = (existingIndex>-1) ? myData.banks[existingIndex].amt : item.amt; 
-        }
+        if(type==='banks') { ledgerName = item.bank; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.banks[existingIndex].amt : item.amt; }
         else if(type==='cash') { ledgerName = item.name; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.cash[existingIndex].amt : item.amt; }
         else if(type==='forex') { ledgerName = item.curr; ledgerAmt = item.amt; finalAssetBal = (existingIndex>-1) ? myData.forex[existingIndex].amt : item.amt; }
         else if(type==='stocks') { ledgerName = `${item.code} ${item.name}`; ledgerAmt = Math.round(item.shares * item.price * (rates[item.curr]||1)); finalAssetBal = (existingIndex>-1) ? myData.stocks[existingIndex].shares : item.shares; }
@@ -552,46 +535,7 @@
         }
     }
 
-    function uploadData(i) {
-        const f = i.files[0];
-        const r = new FileReader();
-        r.onload = e => {
-            try {
-                const j = JSON.parse(e.target.result);
-                if (j.a) {
-                    myData = j.a;
-                    myHistory = j.h || [];
-                    myLedger = j.l || [];
-                } else if (j.assets) {
-                    myData = j.assets;
-                    myHistory = j.history || [];
-                    myLedger = j.ledger || []; 
-                } else {
-                    alert("Invalid file format");
-                    return;
-                }
-                
-                localStorage.setItem("finalDataV27", JSON.stringify(myData));
-                localStorage.setItem("finalLedgerV27", JSON.stringify(myLedger));
-                localStorage.setItem("finalHistoryV27", JSON.stringify(myHistory));
-                
-                updateTxAssetList();
-                renderAll();
-                renderLedger();
-                renderSnapshotList();
-                renderChart();
-                
-                alert('Restored successfully!');
-            } catch (err) {
-                alert("Error reading file: " + err);
-            }
-        };
-        r.readAsText(f);
-        i.value = '';
-    }
-
-    function saveData() { localStorage.setItem("finalDataV27", JSON.stringify(myData)); renderAll(); }
-    
+    // --- REPAIR FUNCTION ---
     async function fetchLiveRates(recordEntry = false) { 
         if(recordEntry) {
             const b = document.getElementById('btnForceSync');
@@ -602,7 +546,7 @@
         let oldTotal = calcCurrentTotal();
 
         try { 
-            const r = await fetch('https://open.er-api.com/v6/latest/TWD'); 
+            const r = await fetch('https://api.exchangerate-api.com/v4/latest/TWD'); 
             const d = await r.json(); 
             for(let k in d.rates) rates[k]=1/d.rates[k]; 
             rates["TWD"]=1; 
@@ -614,21 +558,14 @@
             let newTotal = calcCurrentTotal();
             let diff = Math.round(newTotal - oldTotal);
 
-            if(recordEntry) {
-                if(diff !== 0) {
-                    let now = new Date();
-                    let ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
-                    let type = diff > 0 ? 'in' : 'out';
-                    addLedgerEntry(ts, type, "FX Adjustment", Math.abs(diff), "Exchange Rate Adj.", newTotal, 0);
-                    alert(`Sync Complete. Net Worth Change: NT$${diff.toLocaleString()}`);
-                } else {
-                    alert("Sync Complete. No significant value change.");
-                }
+            if(recordEntry && diff !== 0) {
+                let now = new Date();
+                let ts = now.toISOString().slice(0,10) + " " + now.toTimeString().slice(0,5);
+                let type = diff > 0 ? 'in' : 'out';
+                addLedgerEntry(ts, type, "FX Adjustment", Math.abs(diff), "Exchange Rate Adj.", newTotal, 0);
             }
 
-        } catch(e){
-            if(recordEntry) alert("Rate update failed. Check internet connection.");
-        } 
+        } catch(e){} 
 
         if(recordEntry) {
             const b = document.getElementById('btnForceSync');
@@ -637,114 +574,17 @@
         }
     }
 
-    // --- ROBUST STOCK UPDATER (DUAL CORE + TIMEOUT) ---
-    async function updateStockPrices() { 
-        if(myData.stocks.length==0)return; 
-        const b=document.getElementById('btnUpdateStock'); 
-        b.innerHTML='Updating...'; b.disabled=true; 
-        
-        let oldVal = 0; myData.stocks.forEach(s=>oldVal+=s.shares*s.price*(rates[s.curr]||1));
-        let failedList = [];
-        
-        for(let s of myData.stocks){ 
-            let sym=s.code; 
-            if(s.curr==='TWD'&&!isNaN(sym)&&!sym.includes('.TW')) sym+='.TW'; 
-            else if(s.curr==='HKD'&&!sym.includes('.HK')) sym=sym.padStart(4,'0')+'.HK';
-            
-            let success = false;
-            
-            // Method 1: CorsProxy with 3s Timeout
-            try{ 
-                const r = await fetchWithTimeout('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}`), {}, 3000);
-                const j = await r.json(); 
-                if(j.chart && j.chart.result) { s.price=j.chart.result[0].meta.regularMarketPrice; success=true; }
-            } catch(e){} 
-            
-            // Method 2: AllOrigins Backup
-            if(!success) {
-                try {
-                    const r = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}`)}`, {}, 3000);
-                    const j = await r.json();
-                    if(j.chart && j.chart.result) { s.price=j.chart.result[0].meta.regularMarketPrice; success=true; }
-                } catch(e) {}
-            }
-            
-            if(!success) failedList.push(s.code);
-        } 
-        
-        let newVal = 0; myData.stocks.forEach(s=>newVal+=s.shares*s.price*(rates[s.curr]||1)); 
-        let diff = Math.round(newVal-oldVal);
-        
-        if(diff!==0) { 
-            let now=new Date(); 
-            let ts=now.toISOString().slice(0,10)+" "+now.toTimeString().slice(0,5); 
-            let type=diff>0?'in':'out'; 
-            addLedgerEntry(ts,type,"Stock Portfolio",Math.abs(diff),"Fair Value Adj.",calcCurrentTotal(),Math.round(newVal)); 
-        }
-        
-        saveData(); 
-        b.innerHTML='Update Prices'; 
-        b.disabled=false; 
-        
-        if(failedList.length > 0) alert(`Update finished. Failed to fetch: ${failedList.join(", ")}`);
-        else alert('All stock prices updated successfully.'); 
-    }
-
-    async function fetchSingleStockPrice() { 
-        const m=document.getElementById('stockMarket').value; 
-        let s=document.getElementById('stockCode').value.trim(); 
-        const b=document.getElementById('btnFetchPrice'); 
-        const p=document.getElementById('stockPrice'); 
-        if(!s)return; 
-        if(m==='TWD'&&!isNaN(s))s+='.TW'; else if(m==='HKD')s=s.padStart(4,'0')+'.HK'; 
-        b.innerHTML='...'; b.disabled=true; 
-        
-        try{ 
-            const r=await fetchWithTimeout('https://corsproxy.io/?'+encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${s}`), {}, 3000);
-            const j=await r.json(); 
-            p.value=j.chart.result[0].meta.regularMarketPrice; 
-        } catch(e){
-             try {
-                const r=await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${s}`)}`, {}, 3000);
-                const j=await r.json();
-                p.value=j.chart.result[0].meta.regularMarketPrice;
-            } catch(ex) { alert("Error fetching price"); }
-        } 
-        b.innerHTML='<i class="fas fa-search"></i>'; b.disabled=false; 
-    }
-
-    function recordHistorySafe() {
-        try {
-            const now = new Date();
-            const ts = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,'0')+"-"+String(now.getDate()).padStart(2,'0')+" "+String(now.getHours()).padStart(2,'0')+":"+String(now.getMinutes()).padStart(2,'0');
-            
-            // Force deep copy to prevent reference issues
-            const snapshotData = JSON.parse(JSON.stringify(myData));
-            
-            myHistory.push({ id: Date.now(), time: ts, total: currentGrandTotal, details: snapshotData });
-            myHistory.sort((a,b) => new Date(a.time) - new Date(b.time));
-            
-            localStorage.setItem("cleanAssetHistoryV27", JSON.stringify(myHistory)); 
-            
-            // Try to render, but don't break if it fails
-            try {
-                renderSnapshotList();
-                renderChart();
-            } catch(e) { console.error("Render error", e); }
-            
-            alert("Snapshot saved: "+ts);
-        } catch(e) {
-            alert("Save failed! Please check console.");
-            console.error(e);
-        }
-    }
+    function downloadData() { const d={a:myData,h:myHistory,l:myLedger}; const b=new Blob([JSON.stringify(d)],{type:'json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='backup.json'; a.click(); }
+    function uploadData(i) { const f=i.files[0]; const r=new FileReader(); r.onload=e=>{ const j=JSON.parse(e.target.result); if(j.a) { myData=j.a; myHistory=j.h||[]; myLedger=j.l||[]; saveData(); localStorage.setItem("cleanAssetLedgerV21", JSON.stringify(myLedger)); localStorage.setItem("cleanAssetHistoryV21", JSON.stringify(myHistory)); alert('Restored'); } }; r.readAsText(f); i.value=''; }
 
     function renderAll() {
         let tBank=0, tStock=0, tIns=0, tForex=0, tCash=0;
         document.getElementById("listBank").innerHTML = myData.banks.map((d,i) => { 
+            // Display Fix: Force check against twBanks every render
             let displayBank = d.bank;
             let match = twBanks.find(tb => tb.startsWith(d.bank.split(' ')[0]));
             if (match) displayBank = match;
+            
             tBank+=d.amt; 
             return `<tr><td><div class="fw-bold">${displayBank}</div></td><td><div class="small text-muted">${d.note}</div></td><td class="text-end fw-bold">NT$${d.amt.toLocaleString()}</td><td class="text-end"><i class="fas fa-trash text-muted" onclick="delItem('banks',${i})"></i></td></tr>`; 
         }).join('');
@@ -762,72 +602,6 @@
 
         document.getElementById("sumBank").innerText = "NT$"+Math.round(tBank).toLocaleString(); document.getElementById("sumStock").innerText = "NT$"+Math.round(tStock).toLocaleString(); document.getElementById("sumIns").innerText = "NT$"+Math.round(tIns).toLocaleString(); document.getElementById("sumForex").innerText = "NT$"+Math.round(tForex).toLocaleString(); document.getElementById("sumCash").innerText = "NT$"+Math.round(tCash).toLocaleString();
         currentGrandTotal = Math.round(tBank+tStock+tIns+tForex+tCash); document.getElementById("grandTotal").innerText = "NT$"+currentGrandTotal.toLocaleString();
-    }
-    
-    function renderRateTable() {
-        const list = ['USD', 'CNY', 'JPY', 'KRW', 'EUR', 'HKD', 'AUD', 'CZK'];
-        let html = '';
-        list.forEach(c => {
-            let r = rates[c] || 0;
-            html += `<tr class="rate-row"><td class="text-muted fw-bold ps-4">${c}</td><td class="text-end fw-bold pe-4 text-dark">${r.toFixed(4)}</td></tr>`;
-        });
-        document.getElementById('rateTableBody').innerHTML = html;
-    }
-
-    function renderSnapshotList() {
-        const div = document.getElementById("snapshotList");
-        if(myHistory.length === 0) { div.innerHTML = '<tr><td colspan="2" class="text-center p-3 text-muted">No snapshots.</td></tr>'; return; }
-        let html = "";
-        for(let i=myHistory.length-1; i>=0; i--) {
-            html += `<tr style="cursor:pointer;" onclick="showSnapshotDetails(${i})"><td class="fw-bold text-muted">${myHistory[i].time}</td> <td class="text-end fw-bold text-primary">NT$${myHistory[i].total.toLocaleString()}</td></tr>`;
-        }
-        div.innerHTML = html;
-    }
-
-    function showSnapshotDetails(idx) {
-        const rec = myHistory[idx]; 
-        if (!rec.details) { alert(`Legacy Record\n\n${rec.time}`); return; }
-        
-        const d = rec.details;
-        document.getElementById('modalTitle').innerText = rec.time;
-        document.getElementById('modalTotal').innerText = "NT$"+rec.total.toLocaleString();
-        let tBank=0,tStock=0,tIns=0,tForex=0,tCash=0;
-        if(d.banks) d.banks.forEach(i=>tBank+=i.amt); if(d.stocks) d.stocks.forEach(i=>tStock+=i.shares*i.price*(rates[i.curr]||1));
-        if(d.insurances) d.insurances.forEach(i=>tIns+=i.amt*(rates[i.curr]||1)); if(d.forex) d.forex.forEach(i=>tForex+=i.amt*(rates[i.curr]||1)); if(d.cash) d.cash.forEach(i=>tCash+=i.amt*(rates[i.curr]||1));
-        
-        const pieCtx = document.getElementById('snapshotPieChart').getContext('2d');
-        if(pieChartInstance) pieChartInstance.destroy();
-        pieChartInstance = new Chart(pieCtx, { type: 'doughnut', data: { labels: ['Stock','Bank','Insur','Forex','Cash'], datasets: [{ data: [tStock,tBank,tIns,tForex,tCash], backgroundColor: ['#1e3a8a','#10b981','#f59e0b','#8b5cf6','#64748b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } } });
-        
-        const contentDiv = document.getElementById('modalDetailsContent');
-        let html = '';
-        const genSec = (t, c, a, l, k, v) => { 
-            if(!l||l.length==0)return''; 
-            let pct = (rec.total > 0) ? Math.round((a/rec.total)*100) : 0; 
-            let r=l.map(i=>{ 
-                let val=i[v]; 
-                if(t==='Stocks') val=Math.round(i.shares*i.price*(rates[i.curr]||1)); 
-                else if(i.curr&&i.curr!=='TWD') val=Math.round(i.amt*(rates[i.curr]||1)); 
-                let n=i[k]||i.curr; 
-                if(t==='Stocks') n=`${i.code} ${i.name}`; 
-                return `<div class="detail-row"><span class="detail-label">${n}</span><span class="detail-val">NT$${val.toLocaleString()}</span></div>`; 
-            }).join(''); 
-            return `<div class="detail-card"><h6><span class="legend-dot" style="background:${c}"></span> ${t} <span class="ms-auto small text-muted">${pct}%</span></h6>${r}<div class="mt-2 pt-2 border-top d-flex justify-content-between fw-bold text-dark"><span>Subtotal</span> <span>NT$${Math.round(a).toLocaleString()}</span></div></div>`; 
-        };
-        
-        html += genSec('Stocks','#1e3a8a',tStock,d.stocks,'name','shares'); 
-        html += genSec('Banks','#10b981',tBank,d.banks,'bank','amt'); 
-        html += genSec('Insurance','#f59e0b',tIns,d.insurances,'name','amt'); 
-        html += genSec('Forex','#8b5cf6',tForex,d.forex,'curr','amt'); 
-        html += genSec('Cash','#64748b',tCash,d.cash,'name','amt');
-        contentDiv.innerHTML = html;
-        new bootstrap.Modal(document.getElementById('snapshotModal')).show();
-    }
-
-    function renderChart() {
-        const ctx = document.getElementById('assetChart').getContext('2d');
-        if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, { type: 'line', data: { labels: myHistory.map(h => h.time), datasets: [{ label: 'Net Worth', data: myHistory.map(h => h.total), borderColor: '#1e3a8a', backgroundColor: 'rgba(30,58,138,0.1)', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
     }
 </script>
 </body>
